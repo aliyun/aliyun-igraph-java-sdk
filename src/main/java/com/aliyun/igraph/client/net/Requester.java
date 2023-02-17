@@ -162,11 +162,10 @@ public class Requester {
             serverAddr = "http://" + serverAddr;
         }
         if (isSearch) {
-            requestBuilder = httpClient.preparePost(serverAddr + "/app");
+            requestBuilder = httpClient.preparePost(serverAddr + requestContext.getRequestContent());
         } else {
-            requestBuilder = httpClient.preparePost(serverAddr + "/update");
+            requestBuilder = httpClient.prepareGet(serverAddr + requestContext.getRequestContent());
         }
-        requestBuilder.setBody(requestContext.getRequestContent());
 
         requestBuilder.setRequestTimeout(timeout);
         if (null != auth) {

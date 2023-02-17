@@ -121,6 +121,35 @@ public class IGraphClient {
         requestContext.endQueryEncode();
     }
 
+    protected void encodeRequest(RequestContext requestContext, QueryConfig queryConfig, String submitId, Query... queries) {
+        if (queries.length == 0) {
+            log.warn("empty query!");
+            throw new IGraphQueryException("empty query!");
+        }
+        if (requestContext.getRequestContent() != null) {
+            return;
+        }
+        requestContext.beginQueryEncode();
+        StringBuilder ss = new StringBuilder();
+        ss.append(queryConfig.getConfigString()).append("&&");
+        boolean isFirst = true;
+        for (Query query : queries) {
+            if (isFirst) {
+                isFirst = false;
+            } else {
+                ss.append("||");
+            }
+            ss.append(query.toString());
+        }
+        String src = queryConfig.getSrc();
+        if (null == src) {
+            src = config.getSrc();
+        }
+        ss.append(queryConfig.getBindingString());
+        buildSearchRequest(requestContext, ss.toString(), queryConfig.getQueryType().toString(), src, submitId);
+        requestContext.endQueryEncode();
+    }
+
     private void doUpdateSync(UpdateSession updateSession,
                               Integer updateType,
                               UpdateQuery updateQuery) throws IGraphUpdateException {
@@ -159,11 +188,22 @@ public class IGraphClient {
 
     private void buildSearchRequest(RequestContext requestContext, String queryString, String appName, String src) {
         StringBuilder builder = new StringBuilder(128);
-        builder.append("app=").append(appName).
+        builder.append("/app?app=").append(appName).
             append("&src=").append(src).
             append("&ip=").append(config.getLocalAddress()).
             append("&ver=java_").append(config.getClientVersion()).
             append('?').append(URLCodecUtil.encode(queryString));
+        requestContext.setRequestContent(builder.toString());
+    }
+
+    private void buildSearchRequest(RequestContext requestContext, String queryString, String appName, String src, String submitId) {
+        StringBuilder builder = new StringBuilder(128);
+        builder.append("/app?app=").append(appName).
+            append("&src=").append(src).
+            append("&submitId=").append(submitId).
+            append("&ip=").append(config.getLocalAddress()).
+            append("&ver=java_").append(config.getClientVersion()).
+        append('?').append(URLCodecUtil.encode(queryString));
         requestContext.setRequestContent(builder.toString());
     }
 
@@ -174,7 +214,7 @@ public class IGraphClient {
             src = config.getSrc();
         }
         StringBuilder builder = new StringBuilder(128);
-        builder.append("type=").append(updateType).
+        builder.append("/update?type=").append(updateType).
             append("&_src=").append(src).
             append("&_ver=java_").append(config.getClientVersion()).
             append("&").append(updateQuery.toString()).

@@ -111,7 +111,7 @@ public class IGraphClientTest {
             PGClient pgClient = new PGClient(clientConfig, requester);
             String queryString = "q fvgb";
             String appName = "q";
-            String expected = "app=" + appName + "&src=" + clientConfig.getSrc() + "&ip="
+            String expected = "/app?app=" + appName + "&src=" + clientConfig.getSrc() + "&ip="
                     + clientConfig.getLocalAddress() + "&ver=java_" + clientConfig.getClientVersion()
                     + "?" + URLCodecUtil.encode(queryString);
             RequestContext requestContext = new RequestContext();
@@ -128,7 +128,7 @@ public class IGraphClientTest {
             clientConfig.setSrc("thesrc");
             IGraphClient iGraphClient = new IGraphClient(clientConfig, requester);
             UpdateQuery updateQuery = UpdateQuery.builder().table("kv").pkey("1").valueMaps(new HashMap<String, String>(){{put("mykey", "myvalue");}}).build();
-            String expected = "type=" + 1
+            String expected = "/update?type=" + 1
                     + "&_src=" + clientConfig.getSrc()
                     + "&_ver=java_" + clientConfig.getClientVersion()
                     + "&" + updateQuery.toString()
@@ -145,7 +145,7 @@ public class IGraphClientTest {
             UpdateConfig updateConfig = new UpdateConfig();
             updateConfig.setSrc("thesrc2");
             UpdateQuery updateQuery = UpdateQuery.builder().table("kv").pkey("2").build();
-            String expected = "type=" + 2
+            String expected = "/update?type=" + 2
                     + "&_src=" + updateConfig.getSrc()
                     + "&_ver=java_" + clientConfig.getClientVersion()
                     + "&" + updateQuery.toString()
@@ -167,7 +167,7 @@ public class IGraphClientTest {
             PGConfig pgConfig = new PGConfig();
             AtomicQuery atomicQuery1 = AtomicQuery.builder().table("tbl1").keys("1;2;3").filter("value=2").build();
             AtomicQuery atomicQuery2 = AtomicQuery.builder().table("tbl2").keys("4").build();
-            String expected = "app=pg"
+            String expected = "/app?app=pg"
                     + "&src=" + clientConfig.getSrc()
                     + "&ip=" + clientConfig.getLocalAddress()
                     + "&ver=java_" + clientConfig.getClientVersion()
@@ -187,7 +187,7 @@ public class IGraphClientTest {
             pgConfig.setSrc("src2");
             AtomicQuery atomicQuery1 = AtomicQuery.builder().table("tbl1").keys("1;2;3").filter("value=2").build();
             AtomicQuery atomicQuery2 = AtomicQuery.builder().table("tbl2").keys("4").build();
-            String expected = "app=pg"
+            String expected = "/app?app=pg"
                     + "&src=" + pgConfig.getSrc()
                     + "&ip=" + clientConfig.getLocalAddress()
                     + "&ver=java_" + clientConfig.getClientVersion()
@@ -242,7 +242,7 @@ public class IGraphClientTest {
                 Assert.assertTrue(e.getMessage().contains("empty result"));
             }
 
-            final String expectedQuery = "app="
+            final String expectedQuery = "/app?app="
                     + QueryType.PG.toString()
                     + "&src="
                     + "xiaozhi_test_src"
@@ -297,7 +297,7 @@ public class IGraphClientTest {
                 Assert.assertTrue(e.getMessage().contains("empty result"));
             }
 
-            final String expectedQuery = "app="
+            final String expectedQuery = "/app?app="
                     + QueryType.PG.toString()
                     + "&src="
                     + clientConfig.getSrc()
@@ -348,7 +348,7 @@ public class IGraphClientTest {
                 Assert.assertTrue(e.getMessage().contains("empty result"));
             }
 
-            final String expectedQuery = "app="
+            final String expectedQuery = "/app?app="
                     + QueryType.PG.toString()
                     + "&src="
                     + clientConfig.getSrc()
@@ -401,7 +401,7 @@ public class IGraphClientTest {
                 Assert.assertTrue(e.getMessage().contains("empty result"));
             }
 
-            final String expectedQuery = "app="
+            final String expectedQuery = "/app?app="
                     + QueryType.PG.toString()
                     + "&src="
                     + "xiaozhi_test_src"
@@ -458,7 +458,7 @@ public class IGraphClientTest {
                 Assert.assertTrue(e.getMessage().contains("empty result"));
             }
 
-            final String expectedQuery = "app=gremlin&src=theSrc&ip=1.1.1.1&ver=java_"
+            final String expectedQuery = "/app?app=gremlin&src=theSrc&ip=1.1.1.1&ver=java_"
                     + new ClientConfig().getClientVersion()
                     + "?" + URLCodecUtil.encode(new GremlinSession(client.config).getGremlinConfig().getConfigString()
                     + "&&" + graphTraversal.toString());
@@ -506,7 +506,7 @@ public class IGraphClientTest {
                 Assert.assertTrue(e.getMessage().contains("timeout to sendRequest"));
             }
 
-            final String expectedQuery = "app=gremlin&src=theSrc&ip=1.1.1.1&ver=java_"
+            final String expectedQuery = "/app?app=gremlin&src=theSrc&ip=1.1.1.1&ver=java_"
                 + new ClientConfig().getClientVersion()
                 + "?" + URLCodecUtil.encode(new GremlinSession(client.config).getGremlinConfig().getConfigString()
                 + "&&" + graphTraversal.toString());
@@ -552,7 +552,7 @@ public class IGraphClientTest {
                 Assert.assertTrue(e.getMessage().contains("empty result"));
             }
 
-            final String expectedQuery = "app=gremlin&src=theSrc&ip=1.1.1.1&ver=java_"
+            final String expectedQuery = "/app?app=gremlin&src=theSrc&ip=1.1.1.1&ver=java_"
                     + new ClientConfig().getClientVersion()
                     + "?" + URLCodecUtil.encode(new GremlinSession(client.config).getGremlinConfig().getConfigString()
                     + "&&" + graphTraversal.toString());
@@ -606,7 +606,7 @@ public class IGraphClientTest {
                 Assert.assertTrue(e.getMessage().contains("empty result"));
             }
 
-            final String expectedQuery = "app=gremlin&src=theSrc&ip=1.1.1.1&ver=java_"
+            final String expectedQuery = "/app?app=gremlin&src=theSrc&ip=1.1.1.1&ver=java_"
                     + new ClientConfig().getClientVersion()
                     + "?" + URLCodecUtil.encode(new GremlinSession(client.config).getGremlinConfig().getConfigString()
                     + "&&" + searchStr + "&&bindings=" + "{\"$binding_1\":\"key_1\",\"$binding_2\":\"5\"}");
@@ -659,7 +659,7 @@ public class IGraphClientTest {
                 Assert.assertTrue(e.getMessage().contains("empty result"));
             }
 
-            final String expectedQuery = "app=gremlin&src=theSrc&ip=1.1.1.1&ver=java_"
+            final String expectedQuery = "/app?app=gremlin&src=theSrc&ip=1.1.1.1&ver=java_"
                     + new ClientConfig().getClientVersion()
                     + "?" + URLCodecUtil.encode(new GremlinSession(client.config).getGremlinConfig().getConfigString()
                     + "&&" + graphTraversal);
@@ -722,7 +722,7 @@ public class IGraphClientTest {
             gremlinConfig.setRetryTimes(2048);
             gremlinConfig.setTimeoutInMs(1024);
             gremlinConfig.setSrc("optionSrc");
-            final String expectedQuery = "app=gremlin&src=optionSrc&ip=1.1.1.1&ver=java_"
+            final String expectedQuery = "/app?app=gremlin&src=optionSrc&ip=1.1.1.1&ver=java_"
                     + new ClientConfig().getClientVersion()
                     + "?" + URLCodecUtil.encode(gremlinConfig.getConfigString()
                     + "&&" + searchStr + "&&bindings=" + "{\"$binding_1\":\"key_1\",\"$binding_2\":\"5\"}");
@@ -774,7 +774,7 @@ public class IGraphClientTest {
                 Assert.assertTrue(e.getMessage().contains("empty result"));
             }
 
-            final String expectedQuery = "app=gremlin&src=theSrc&ip=1.1.1.1&ver=java_"
+            final String expectedQuery = "/app?app=gremlin&src=theSrc&ip=1.1.1.1&ver=java_"
                     + new ClientConfig().getClientVersion()
                     + "?" + URLCodecUtil.encode(new GremlinSession(client.config).getGremlinConfig().getConfigString()
                     + "&&" + graphTraversal1.toString() + "||" + graphTraversal2.toString());
@@ -828,7 +828,7 @@ public class IGraphClientTest {
                 Assert.assertTrue(e.getMessage().contains("empty result"));
             }
 
-            final String expectedQuery = "app=gremlin&src=theSrc&ip=1.1.1.1&ver=java_"
+            final String expectedQuery = "/app?app=gremlin&src=theSrc&ip=1.1.1.1&ver=java_"
                     + new ClientConfig().getClientVersion()
                     + "?" + URLCodecUtil.encode(new GremlinSession(client.config).getGremlinConfig().getConfigString()
                     + "&&" + graphTraversal1.toString() + "||" + graphTraversal2.toString());
@@ -874,7 +874,7 @@ public class IGraphClientTest {
 
             iGraphClient.updateSync(new UpdateSession(), updateQuery);
 
-            final String expectedQuery = "type=1"
+            final String expectedQuery = "/update?type=1"
                     + "&_src=" + clientConfig.getSrc()
                     + "&_ver=java_" + clientConfig.getClientVersion()
                     + "&" + updateQuery
@@ -911,7 +911,7 @@ public class IGraphClientTest {
 
             iGraphClient.updateSync(new UpdateSession(), updateQuery);
 
-            final String expectedQuery = "type=1"
+            final String expectedQuery = "/update?type=1"
                     + "&_src=" + clientConfig.getSrc()
                     + "&_ver=java_" + clientConfig.getClientVersion()
                     + "&" + updateQuery
@@ -959,7 +959,7 @@ public class IGraphClientTest {
             responseFuture.complete(null);
             future.get();
 
-            final String expectedQuery = "type=1"
+            final String expectedQuery = "/update?type=1"
                     + "&_src=" + clientConfig.getSrc()
                     + "&_ver=java_" + clientConfig.getClientVersion()
                     + "&" + updateQuery
@@ -1008,7 +1008,7 @@ public class IGraphClientTest {
                 Assert.assertTrue(e.getMessage().contains("update failed"));
             }
 
-            final String expectedQuery = "type=1"
+            final String expectedQuery = "/update?type=1"
                     + "&_src=" + clientConfig.getSrc()
                     + "&_ver=java_" + clientConfig.getClientVersion()
                     + "&" + updateQuery
@@ -1050,7 +1050,7 @@ public class IGraphClientTest {
             Assert.assertEquals(1, results.size());
             Assert.assertEquals("<errno>0</errno>", results.get(0).getString());
 
-            final String expectedQuery = "type=1"
+            final String expectedQuery = "/update?type=1"
                     + "&_src=test_name_updateDomain&_ver=java_" + new ClientConfig().getClientVersion()
                     + "&table=graph_name_label_name&pkey=pk&value=0.5&_message_time_stamp=";
             new Verifications() {
@@ -1090,7 +1090,7 @@ public class IGraphClientTest {
             Assert.assertEquals(1, results.size());
             Assert.assertEquals("<errno>0</errno>", results.get(0).getString());
 
-            final String expectedQuery = "type=1"
+            final String expectedQuery = "/update?type=1"
                     + "&_src=test_name_updateDomain&_ver=java_" + new ClientConfig().getClientVersion()
                     + "&table=graph_name_label_name&pkey=pk&skey=sk&value=0.5&_message_time_stamp=";
             new Verifications() {
@@ -1133,7 +1133,7 @@ public class IGraphClientTest {
                 Assert.assertTrue(e.getMessage().contains("update failed"));
             }
 
-            final String expectedQuery = "type=1"
+            final String expectedQuery = "/update?type=1"
                     + "&_src=test_name_updateDomain&_ver=java_" + new ClientConfig().getClientVersion()
                     + "&table=graph_name_label_name&pkey=pk&value=0.5&_message_time_stamp=";
             new Verifications() {
@@ -1168,7 +1168,7 @@ public class IGraphClientTest {
             UpdateQuery updateQuery = UpdateQuery.builder().table("tbl1").pkey("pkey1").build();
             iGraphClient.deleteSync(new UpdateSession(), updateQuery);
 
-            final String expectedQuery = "type=2"
+            final String expectedQuery = "/update?type=2"
                     + "&_src=" + clientConfig.getSrc()
                     + "&_ver=java_" + clientConfig.getClientVersion()
                     + "&" + updateQuery
@@ -1198,7 +1198,7 @@ public class IGraphClientTest {
             UpdateQuery updateQuery = UpdateQuery.builder().table("tbl1").pkey("pkey1").skey("skey1").build();
             iGraphClient.deleteSync(new UpdateSession(), updateQuery);
 
-            final String expectedQuery = "type=2"
+            final String expectedQuery = "/update?type=2"
                     + "&_src=" + clientConfig.getSrc()
                     + "&_ver=java_" + clientConfig.getClientVersion()
                     + "&" + updateQuery
@@ -1238,7 +1238,7 @@ public class IGraphClientTest {
             CompletableFuture<Response> future = iGraphClient.deleteAsync(new UpdateSession(), updateQuery);
             responseFuture.complete(null);
             future.get();
-            final String expectedQuery = "type=2"
+            final String expectedQuery = "/update?type=2"
                     + "&_src=" + clientConfig.getSrc()
                     + "&_ver=java_" + clientConfig.getClientVersion()
                     + "&" + updateQuery
@@ -1280,7 +1280,7 @@ public class IGraphClientTest {
             Assert.assertEquals(1, results.size());
             Assert.assertEquals("<errno>0</errno>", results.get(0).getString());
 
-            final String expectedQuery = "type=2"
+            final String expectedQuery = "/update?type=2"
                     + "&_src=test_name_updateDomain&_ver=java_" + new ClientConfig().getClientVersion()
                     + "&table=graph_name_label_name&pkey=pkey1&skey=skey1&_message_time_stamp=";
             new Verifications() {
@@ -1320,7 +1320,7 @@ public class IGraphClientTest {
             Assert.assertEquals(1, results.size());
             Assert.assertEquals("<errno>0</errno>", results.get(0).getString());
 
-            final String expectedQuery = "type=2"
+            final String expectedQuery = "/update?type=2"
                     + "&_src=test_name_updateDomain&_ver=java_" + new ClientConfig().getClientVersion()
                     + "&table=graph_name_label_name&pkey=pkey1&_message_time_stamp=";
             new Verifications() {
@@ -1360,7 +1360,7 @@ public class IGraphClientTest {
             Assert.assertEquals(1, results.size());
             Assert.assertEquals("<errno>0</errno>", results.get(0).getString());
 
-            final String expectedQuery = "type=2"
+            final String expectedQuery = "/update?type=2"
                     + "&_src=test_name_updateDomain&_ver=java_" + new ClientConfig().getClientVersion()
                     + "&table=graph_name_label_name&pkey=pkey1&_message_time_stamp=";
             new Verifications() {
@@ -1403,7 +1403,7 @@ public class IGraphClientTest {
                 Assert.assertTrue(e.getMessage().contains("update failed"));
             }
 
-            final String expectedQuery = "type=2"
+            final String expectedQuery = "/update?type=2"
                     + "&_src=test_name_updateDomain&_ver=java_" + new ClientConfig().getClientVersion()
                     + "&table=graph_name_label_name&pkey=pkey1&_message_time_stamp=";
             new Verifications() {
