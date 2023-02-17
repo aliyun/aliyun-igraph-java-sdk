@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>VIPClient.java</title>
+  <meta http-equiv='Content-Type' content='text/html; charset=UTF-8'/>
+  <link rel='stylesheet' type='text/css' href='../../../../../../coverage.css'/>
+  <link rel='shortcut icon' type='image/png' href='../../../../../../logo.png'/>
+  <script type='text/javascript' src='../../../../../../coverage.js'></script>
+  <script type='text/javascript' src='../../../../../../prettify.js'></script>
+</head>
+<body onload='prettyPrint()'>
+  <table cellpadding='0' cellspacing='1'>
+    <caption>igraph_client_java/src/main/java/com/taobao/igraph/vipserver/client/core/VIPClient.java</caption>
+    <tr>
+      <td class='line'>1</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>package com.taobao.igraph.vipserver.client.core;</pre></td>
+    </tr>
+    <tr><td class='line'></td><td colspan='2'>&nbsp;</td></tr>
+    <tr>
+      <td class='line'></td><td>&nbsp;</td>
+      <td><pre class='imports prettyprint' onclick='showHideLines(this)'><div>import java.io.File;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.DailyRollingFileAppender;
+import org.apache.log4j.FileAppender;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.apache.log4j.PatternLayout;
+
+import com.taobao.igraph.vipserver.client.net.VIPServerProxy;
+</div><span>import ...</span></pre></td>
+    </tr>
+    <tr><td class='line'></td><td colspan='2'>&nbsp;</td></tr>
+    <tr>
+      <td class='line'>18</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>public class VIPClient {</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>19</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>	public static Logger LOG = Logger.getLogger(VIPClient.class);</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>20</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>	private static String encoding = "GBK";</pre></td>
+    </tr>
+    <tr><td class='line'></td><td colspan='2'>&nbsp;</td></tr>
+    <tr>
+      <td class='line'>22</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>	private static String cacheDir;</pre></td>
+    </tr>
+    <tr><td class='line'></td><td colspan='2'>&nbsp;</td></tr>
+    <tr>
+      <td class='line'>24</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>	private static String logPath;</pre></td>
+    </tr>
+    <tr><td class='line'></td><td colspan='2'>&nbsp;</td></tr>
+    <tr>
+      <td class='line'>26</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>	private static String jmenv;</pre></td>
+    </tr>
+    <tr><td class='line'></td><td colspan='2'>&nbsp;</td></tr>
+    <tr>
+      <td class='line'>28</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>	public static final String APPENDER_NAME = "vslogger";</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>29</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>	public static final String VERSION = "VIPServer-Java-Client:v4.3.0";</pre></td>
+    </tr>
+    <tr><td class='line'></td><td colspan='2'>&nbsp;</td></tr>
+    <tr>
+      <td class='line'>31</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>	static {</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>32</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>		logPath = System.getProperty("com.alibaba.vipserver.log.path");</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>33</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>		if (StringUtils.isEmpty(logPath)) {</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>34</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>			logPath = System.getProperty("user.home")</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>35</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>					+ "/vipsrv-logs/vipclient.log";</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>36</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>		}</pre></td>
+    </tr>
+    <tr><td class='line'></td><td colspan='2'>&nbsp;</td></tr>
+    <tr>
+      <td class='line'>38</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>		cacheDir = System.getProperty("com.alibaba.vipserver.cache.dir");</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>39</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>		if (StringUtils.isEmpty(cacheDir)) {</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>40</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>			cacheDir = System.getProperty("user.home") + "/vipsrv-cache";</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>41</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>		}</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>42</td><td>&nbsp;</td>
+      <td><pre class='comment'>		// version</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>43</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>		cacheDir = cacheDir + File.separator + VERSION.replace(":", "-");</pre></td>
+    </tr>
+    <tr><td class='line'></td><td colspan='2'>&nbsp;</td></tr>
+    <tr>
+      <td class='line'>45</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>		jmenv = System.getProperty("com.alibaba.vipserver.jmenv");</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>46</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>		if (StringUtils.isEmpty(jmenv)) {</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>47</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>			jmenv = "jmenv.tbsite.net:8080";</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>48</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>		}</pre></td>
+    </tr>
+    <tr><td class='line'></td><td colspan='2'>&nbsp;</td></tr>
+    <tr>
+      <td class='line'>50</td><td>&nbsp;</td>
+      <td><pre class='comment'>		// check logDir whether exists. if not, create it</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>51</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>		String parentName = new File(logPath).getParent();</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>52</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>		if (parentName == null) {</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>53</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>			throw new IllegalArgumentException("illegal logPath: " + logPath);</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>54</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>		}</pre></td>
+    </tr>
+    <tr><td class='line'></td><td colspan='2'>&nbsp;</td></tr>
+    <tr>
+      <td class='line'>56</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>		File parentDir = new File(parentName);</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>57</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>		if (!parentDir.exists() && !parentDir.mkdirs()) {</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>58</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>			throw new IllegalArgumentException(</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>59</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>					"unable to create parent dirs in logPath: " + logPath);</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>60</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>		}</pre></td>
+    </tr>
+    <tr><td class='line'></td><td colspan='2'>&nbsp;</td></tr>
+    <tr>
+      <td class='line'>62</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>		FileAppender appender = new DailyRollingFileAppender();</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>63</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>		appender.setName(APPENDER_NAME);</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>64</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>		appender.setAppend(true);</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>65</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>		appender.setEncoding(getEncoding());</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>66</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>		appender.setFile(logPath);</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>67</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>		appender.setLayout(new PatternLayout("%d %-5p - %m%n%n"));</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>68</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>		appender.activateOptions();</pre></td>
+    </tr>
+    <tr><td class='line'></td><td colspan='2'>&nbsp;</td></tr>
+    <tr>
+      <td class='line'>70</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>		System.out.println("vip client log path : "</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>71</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>				+ new File(appender.getFile()).getAbsolutePath());</pre></td>
+    </tr>
+    <tr><td class='line'></td><td colspan='2'>&nbsp;</td></tr>
+    <tr>
+      <td class='line'>73</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>		LOG.setLevel(Level.INFO);</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>74</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>		LOG.setAdditivity(false);</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>75</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>		LOG.addAppender(appender);</pre></td>
+    </tr>
+    <tr><td class='line'></td><td colspan='2'>&nbsp;</td></tr>
+    <tr>
+      <td class='line'>77</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>		LOG.info("vipserver-client initialized, jmenv: " + jmenv</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>78</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>				+ "; cache-dir: " + cacheDir);</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>79</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>	}</pre></td>
+    </tr>
+    <tr><td class='line'></td><td colspan='2'>&nbsp;</td></tr>
+    <tr>
+      <td class='line'></td><td>&nbsp;</td>
+      <td class='comment' onclick='showHideLines(this)'><div>	/**
+	 * 以轮询(RR)的方式返回域名的一个有效（不包括健康但权重为0）Host
+	 * &lt;p/>
+	 * &lt;p/>
+	 * &lt;strong>注意&lt;/strong>：所有的错误将会以异常的形式给出&lt;br/>
+	 * 
+	 * @param dom
+	 *            域名字符串，如"www.taobao.com"
+	 * @return 一个Host对象，若想将 Host 转换成为 ip:port 的形式，可以使用 host#inetAddr()
+	 * @throws java.lang.Exception
+	 *             找不到Host或者出现错误
+	 */</div><span>	/*...*/</span></td>
+    </tr>
+    <tr>
+      <td class='line'>93</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>	public static Host srvHost(String dom) throws Exception {</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>94</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>		return Balancer.RR.selectHost(HostReactor</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>95</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>				.getDom(dom, StringUtils.EMPTY));</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>96</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>	}</pre></td>
+    </tr>
+    <tr><td class='line'></td><td colspan='2'>&nbsp;</td></tr>
+    <tr>
+      <td class='line'></td><td>&nbsp;</td>
+      <td class='comment' onclick='showHideLines(this)'><div>	/**
+	 * 以轮询（RR）的方式返回域名对应clusters中的一个有效（不包括健康但权重为0）Host。
+	 * &lt;p/>
+	 * &lt;p/>
+	 * &lt;strong>注意&lt;/strong>：所有的错误将会以异常的形式给出&lt;br/>
+	 * 
+	 * @param dom
+	 *            域名字符串，如"www.taobao.com"
+	 * @param clusters
+	 *            指定的虚拟集群名称，可以是多个用英文逗号隔开，如 “http,tcp“
+	 * @return 一个 Host 对象，若想将 Host 转换成为 ip:port 的形式，可以使用 host#inetAddr()
+	 * @throws java.lang.Exception
+	 *             找不到Host或者出现错误
+	 */</div><span>	/*...*/</span></td>
+    </tr>
+    <tr>
+      <td class='line'>112</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>	public static Host srvHost(String dom, String clusters) throws Exception {</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>113</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>		return Balancer.RR.selectHost(HostReactor.getDom(dom, clusters));</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>114</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>	}</pre></td>
+    </tr>
+    <tr><td class='line'></td><td colspan='2'>&nbsp;</td></tr>
+    <tr>
+      <td class='line'></td><td>&nbsp;</td>
+      <td class='comment' onclick='showHideLines(this)'><div>	/**
+	 * 以轮询（RR）的方式返回域名符合userId对应单元的一个有效（不包括健康但权重为0）Host
+	 * &lt;p/>
+	 * &lt;p/>
+	 * &lt;strong>注意&lt;/strong>：所有的错误将会以异常的形式给出&lt;br/>
+	 * 
+	 * @param dom
+	 *            域名字符串，如"www.taobao.com"
+	 * @param userId
+	 *            单元化对应的userId
+	 * @return 一个 Host 对象，若想将 Host 转换成为 ip:port 的形式，可以使用 host#inetAddr()
+	 * @throws java.lang.Exception
+	 *             找不到Host或者出现错误
+	 */</div><span>	/*...*/</span></td>
+    </tr>
+    <tr>
+      <td class='line'>130</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>	public static Host srvHost(String dom, long userId) throws Exception {</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>131</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>		return Balancer.Unit.selectHost(</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>132</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>				HostReactor.getDom(dom, StringUtils.EMPTY), userId);</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>133</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>	}</pre></td>
+    </tr>
+    <tr><td class='line'></td><td colspan='2'>&nbsp;</td></tr>
+    <tr>
+      <td class='line'></td><td>&nbsp;</td>
+      <td class='comment' onclick='showHideLines(this)'><div>	/**
+	 * 以轮询（RR）的方式返回域名指定clusters内的且符合userId对应单元一个有效（不包括健康但权重为0）Host
+	 * &lt;p>
+	 * &lt;p/>
+	 * &lt;p/>
+	 * &lt;strong>注意&lt;/strong>：所有的错误将会以异常的形式给出&lt;br/>
+	 * 
+	 * @param dom
+	 *            域名字符串，如"www.taobao.com"
+	 * @param clusters
+	 *            指定的虚拟集群名称，可以是多个用英文逗号隔开，如 “http,tcp“
+	 * @param userId
+	 *            单元化对应的userId
+	 * @return 一个 Host 对象，若想将 Host 转换成为 ip:port 的形式，可以使用 host#inetAddr()
+	 * @throws java.lang.Exception
+	 *             找不到Host或者出现错误
+	 */</div><span>	/*...*/</span></td>
+    </tr>
+    <tr>
+      <td class='line'>152</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>	public static Host srvHost(String dom, String clusters, long userId)</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>153</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>			throws Exception {</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>154</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>		return Balancer.Unit.selectHost(HostReactor.getDom(dom, clusters),</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>155</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>				userId);</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>156</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>	}</pre></td>
+    </tr>
+    <tr><td class='line'></td><td colspan='2'>&nbsp;</td></tr>
+    <tr>
+      <td class='line'></td><td>&nbsp;</td>
+      <td class='comment' onclick='showHideLines(this)'><div>	/**
+	 * 返回域名所有有效（不包括健康但权重为0）Host列表。
+	 * &lt;p/>
+	 * &lt;p/>
+	 * &lt;strong>注意&lt;/strong>：
+	 * &lt;ul>
+	 * &lt;li>所有的错误将会以异常的形式给出&lt;/li>
+	 * &lt;li>这个接口会按weight对Host进行复制及过滤&lt;/li>
+	 * &lt;/ul>
+	 * 
+	 * @param dom
+	 *            域名字符串，如"www.taobao.com"
+	 * @return 一个 Host 对象列表，若想将 Host 转换成为 ip:port 的形式，可以使用 host#inetAddr()
+	 * @throws java.lang.Exception
+	 *             操作失败
+	 */</div><span>	/*...*/</span></td>
+    </tr>
+    <tr>
+      <td class='line'>174</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>	public static List&lt;Host> srvHosts(String dom) throws Exception {</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>175</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>		return Balancer.RR</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>176</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>				.selectAll(HostReactor.getDom(dom, StringUtils.EMPTY));</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>177</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>	}</pre></td>
+    </tr>
+    <tr><td class='line'></td><td colspan='2'>&nbsp;</td></tr>
+    <tr>
+      <td class='line'></td><td>&nbsp;</td>
+      <td class='comment' onclick='showHideLines(this)'><div>	/**
+	 * 返回域名指定clusters内的所有有效（不包括健康但权重为0）Host列表。
+	 * &lt;p>
+	 * &lt;p/>
+	 * &lt;p/>
+	 * &lt;strong>注意&lt;/strong>：
+	 * &lt;li>所有的错误将会以异常的形式给出&lt;/li>
+	 * &lt;li>这个接口会按weight对Host进行复制及过滤&lt;/li> &lt;/ul>
+	 * 
+	 * @param dom
+	 *            域名字符串，如"www.taobao.com"
+	 * @param clusters
+	 *            指定的虚拟集群名称，可以是多个用英文逗号隔开，如 “http,tcp“
+	 * @return 一个 Host 对象列表，若想将 Host 转换成为 ip:port 的形式，可以使用 host#inetAddr()
+	 * @throws java.lang.Exception
+	 *             操作失败
+	 */</div><span>	/*...*/</span></td>
+    </tr>
+    <tr>
+      <td class='line'>196</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>	public static List&lt;Host> srvHosts(String dom, String clusters)</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>197</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>			throws Exception {</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>198</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>		return Balancer.RR.selectAll(HostReactor.getDom(dom, clusters));</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>199</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>	}</pre></td>
+    </tr>
+    <tr><td class='line'></td><td colspan='2'>&nbsp;</td></tr>
+    <tr>
+      <td class='line'></td><td>&nbsp;</td>
+      <td class='comment' onclick='showHideLines(this)'><div>	/**
+	 * 返回域名符合对应userId单元的所有有效（不包括健康但权重为0）Host列表。
+	 * &lt;p>
+	 * &lt;p/>
+	 * &lt;p/>
+	 * &lt;strong>注意&lt;/strong>：
+	 * &lt;li>所有的错误将会以异常的形式给出&lt;/li>
+	 * &lt;li>这个接口会按weight对Host进行复制及过滤&lt;/li> &lt;/ul>
+	 * 
+	 * @param dom
+	 *            域名字符串，如"www.taobao.com"
+	 * @param userId
+	 *            单元化对应的userId
+	 * @return 一个 Host 对象列表，若想将 Host 转换成为 ip:port 的形式，可以使用 host#inetAddr()
+	 * @throws java.lang.Exception
+	 *             操作失败
+	 */</div><span>	/*...*/</span></td>
+    </tr>
+    <tr>
+      <td class='line'>218</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>	public static List&lt;Host> srvHosts(String dom, long userId) throws Exception {</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>219</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>		return Balancer.Unit.selectAll(</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>220</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>				HostReactor.getDom(dom, StringUtils.EMPTY), userId);</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>221</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>	}</pre></td>
+    </tr>
+    <tr><td class='line'></td><td colspan='2'>&nbsp;</td></tr>
+    <tr>
+      <td class='line'></td><td>&nbsp;</td>
+      <td class='comment' onclick='showHideLines(this)'><div>	/**
+	 * 返回域名指定clusters内的且符合userId对应单元所有有效（不包括健康但权重为0）Host列表
+	 * &lt;p>
+	 * &lt;p/>
+	 * &lt;strong>注意&lt;/strong>：
+	 * &lt;li>所有的错误将会以异常的形式给出&lt;/li>
+	 * &lt;li>这个接口会按weight对Host进行复制及过滤&lt;/li> &lt;/ul>
+	 * 
+	 * @param dom
+	 *            域名字符串，如"www.taobao.com"
+	 * @param clusters
+	 *            指定的虚拟集群名称，可以是多个用英文逗号隔开，如 “http,tcp“
+	 * @param userId
+	 *            单元化对应的userId
+	 * @return 一个 Host 对象列表，若想将 Host 转换成为 ip:port 的形式，可以使用 host#inetAddr()
+	 * @throws java.lang.Exception
+	 *             操作失败
+	 */</div><span>	/*...*/</span></td>
+    </tr>
+    <tr>
+      <td class='line'>241</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>	public static List&lt;Host> srvHosts(String dom, String clusters, long userId)</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>242</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>			throws Exception {</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>243</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>		return Balancer.Unit.selectAll(HostReactor.getDom(dom, clusters),</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>244</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>				userId);</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>245</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>	}</pre></td>
+    </tr>
+    <tr><td class='line'></td><td colspan='2'>&nbsp;</td></tr>
+    <tr>
+      <td class='line'></td><td>&nbsp;</td>
+      <td class='comment' onclick='showHideLines(this)'><div>	/**
+	 * 返回域名所有Host列表（包括不可用的）。
+	 * &lt;p/>
+	 * &lt;strong>注意&lt;/strong>：
+	 * &lt;ul>
+	 * &lt;li>所有的错误将会以异常的形式给出&lt;/li>
+	 * &lt;li>这个接口不会按weight对Host进行复制及过滤，权重为0的也会返回，即服务端的原始数据&lt;/li>
+	 * &lt;/ul>
+	 * 
+	 * @param dom
+	 *            域名字符串，如"www.taobao.com"
+	 * @return 一个 Host 对象列表，若想将 Host 转换成为 ip:port 的形式，可以使用 host#inetAddr()
+	 * @throws java.lang.Exception
+	 *             操作失败
+	 */</div><span>	/*...*/</span></td>
+    </tr>
+    <tr>
+      <td class='line'>262</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>	public static List&lt;Host> getHosts(String dom) throws Exception {</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>263</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>		return Balancer.RR.nothing(HostReactor.getDom(dom, StringUtils.EMPTY));</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>264</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>	}</pre></td>
+    </tr>
+    <tr><td class='line'></td><td colspan='2'>&nbsp;</td></tr>
+    <tr>
+      <td class='line'></td><td>&nbsp;</td>
+      <td class='comment' onclick='showHideLines(this)'><div>	/**
+	 * 返回域名指定clusters内的所有Host列表（包括不可用的）。
+	 * &lt;p/>
+	 * &lt;p/>
+	 * &lt;strong>注意&lt;/strong>：
+	 * &lt;li>所有的错误将会以异常的形式给出&lt;/li>
+	 * &lt;li>这个接口不会按weight对Host进行复制及过滤，权重为0的也会返回，即服务端的原始数据。&lt;/li> &lt;/ul>
+	 * 
+	 * @param dom
+	 *            域名字符串，如"www.taobao.com"
+	 * @param clusters
+	 *            指定的虚拟集群名称，可以是多个用英文逗号隔开，如 “http,tcp“
+	 * @return 一个 Host 对象列表，若想将 Host 转换成为 ip:port 的形式，可以使用 host#inetAddr()
+	 * @throws java.lang.Exception
+	 *             操作失败
+	 */</div><span>	/*...*/</span></td>
+    </tr>
+    <tr>
+      <td class='line'>282</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>	public static List&lt;Host> getHosts(String dom, String clusters)</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>283</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>			throws Exception {</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>284</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>		return Balancer.RR.nothing(HostReactor.getDom(dom, clusters));</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>285</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>	}</pre></td>
+    </tr>
+    <tr><td class='line'></td><td colspan='2'>&nbsp;</td></tr>
+    <tr>
+      <td class='line'></td><td>&nbsp;</td>
+      <td class='comment' onclick='showHideLines(this)'><div>	/**
+	 * 返回域名指定clusters内的所有Host列表（包括不可用的）。
+	 * &lt;p/>
+	 * &lt;p/>
+	 * &lt;strong>注意&lt;/strong>：
+	 * &lt;li>所有的错误将会以异常的形式给出&lt;/li>
+	 * &lt;li>这个接口不会按weight对Host进行复制及过滤，权重为0的也会返回，即服务端的原始数据。&lt;/li> &lt;/ul>
+	 * 
+	 * @param dom
+	 *            域名字符串，如"www.taobao.com"
+	 * @param userId
+	 *            单元化对应的userId
+	 * @return 一个 Host 对象列表，若想将 Host 转换成为 ip:port 的形式，可以使用 host#inetAddr()
+	 * @throws java.lang.Exception
+	 *             操作失败
+	 */</div><span>	/*...*/</span></td>
+    </tr>
+    <tr>
+      <td class='line'>303</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>	public static List&lt;Host> getHosts(String dom, long userId) throws Exception {</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>304</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>		return Balancer.Unit.nothing(</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>305</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>				HostReactor.getDom(dom, StringUtils.EMPTY), userId);</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>306</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>	}</pre></td>
+    </tr>
+    <tr><td class='line'></td><td colspan='2'>&nbsp;</td></tr>
+    <tr>
+      <td class='line'></td><td>&nbsp;</td>
+      <td class='comment' onclick='showHideLines(this)'><div>	/**
+	 * 返回域名指定clusters内的且符合userId对应单元所有Host列表（包括不可用的）。
+	 * &lt;p/>
+	 * &lt;p/>
+	 * &lt;strong>注意&lt;/strong>：
+	 * &lt;li>所有的错误将会以异常的形式给出&lt;/li>
+	 * &lt;li>这个接口不会按weight对Host进行复制及过滤，权重为0的也会返回，即服务端的原始数据。&lt;/li> &lt;/ul>
+	 * 
+	 * @param dom
+	 *            域名字符串，如"www.taobao.com"
+	 * @param clusters
+	 *            指定的虚拟集群名称，可以是多个用英文逗号隔开，如 “http,tcp“
+	 * @param userId
+	 *            单元化对应的userId
+	 * @return 一个 Host 对象列表，若想将 Host 转换成为 ip:port 的形式，可以使用 host#inetAddr()
+	 * @throws java.lang.Exception
+	 *             操作失败
+	 */</div><span>	/*...*/</span></td>
+    </tr>
+    <tr>
+      <td class='line'>326</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>	public static List&lt;Host> getHosts(String dom, String clusters, long userId)</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>327</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>			throws Exception {</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>328</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>		return Balancer.Unit.nothing(HostReactor.getDom(dom, clusters), userId);</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>329</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>	}</pre></td>
+    </tr>
+    <tr><td class='line'></td><td colspan='2'>&nbsp;</td></tr>
+    <tr>
+      <td class='line'></td><td>&nbsp;</td>
+      <td class='comment' onclick='showHideLines(this)'><div>	/**
+	 * 向指定域名添加一个IP地址。
+	 * &lt;p>
+	 * &lt;p/>
+	 * &lt;strong>注意&lt;/strong>：所有的错误将会以异常的形式给出&lt;br/>
+	 * 
+	 * @param dom
+	 *            域名字符串，如"www.taobao.com"
+	 * @param token
+	 *            此域名的token，用于权限校验
+	 * @param ipList
+	 *            需要添加的IP列表，按以下格式:
+	 *            ip:port[_weight][_cluster],ip:port[_weight][_cluster]
+	 */</div><span>	/*...*/</span></td>
+    </tr>
+    <tr>
+      <td class='line'>345</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>	public static void addIP4Dom(String dom, String token, String ipList)</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>346</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>			throws Exception {</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>347</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>		Map&lt;String, String> params = new HashMap&lt;String, String>();</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>348</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>		params.put("dom", dom);</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>349</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>		params.put("ipList", ipList);</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>350</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>		params.put("token", token);</pre></td>
+    </tr>
+    <tr><td class='line'></td><td colspan='2'>&nbsp;</td></tr>
+    <tr>
+      <td class='line'>352</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>		VIPServerProxy.reqAPI("addIP4Dom", params);</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>353</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>	}</pre></td>
+    </tr>
+    <tr><td class='line'></td><td colspan='2'>&nbsp;</td></tr>
+    <tr>
+      <td class='line'></td><td>&nbsp;</td>
+      <td class='comment' onclick='showHideLines(this)'><div>	/**
+	 * 向指定域名删除一个IP地址。
+	 * &lt;p>
+	 * &lt;p/>
+	 * &lt;strong>注意&lt;/strong>：所有的错误将会以异常的形式给出&lt;br/>
+	 * 
+	 * @param dom
+	 *            域名字符串，如"www.taobao.com"
+	 * @param token
+	 *            此域名的token，用于权限校验
+	 * @param ipList
+	 *            需要删除的IP列表，按以下格式: ip:port_weight,ip:port_weight
+	 * @throws java.lang.Exception
+	 *             操作失败
+	 */</div><span>	/*...*/</span></td>
+    </tr>
+    <tr>
+      <td class='line'>370</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>	public static void remvIP4Dom(String dom, String token, String ipList)</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>371</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>			throws Exception {</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>372</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>		Map&lt;String, String> params = new HashMap&lt;String, String>();</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>373</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>		params.put("dom", dom);</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>374</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>		params.put("ipList", ipList);</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>375</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>		params.put("token", token);</pre></td>
+    </tr>
+    <tr><td class='line'></td><td colspan='2'>&nbsp;</td></tr>
+    <tr>
+      <td class='line'>377</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>		VIPServerProxy.reqAPI("remvIP4Dom", params);</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>378</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>	}</pre></td>
+    </tr>
+    <tr><td class='line'></td><td colspan='2'>&nbsp;</td></tr>
+    <tr>
+      <td class='line'></td><td>&nbsp;</td>
+      <td class='comment' onclick='showHideLines(this)'><div>	/**
+	 * 监听一个域名Host变更，当Host变生变更时通知，并传入新的Host原生列表（未进行过滤操作，例如不会按权重将Host展开）
+	 * 
+	 * @param dom
+	 *            域名字符串，如"www.taobao.com"
+	 * @param listener
+	 */</div><span>	/*...*/</span></td>
+    </tr>
+    <tr>
+      <td class='line'>387</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>	public static void listen(String dom, HostListener listener) {</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>388</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>		EventDispatcher.addListener(dom, StringUtils.EMPTY, listener);</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>389</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>	}</pre></td>
+    </tr>
+    <tr><td class='line'></td><td colspan='2'>&nbsp;</td></tr>
+    <tr>
+      <td class='line'></td><td>&nbsp;</td>
+      <td class='comment' onclick='showHideLines(this)'><div>	/**
+	 * 监听一个域名中所指定虚拟分组的Host变更，当Host变生变更时通知，并传入新的IP原生列表（未进行过滤操作，例如不会按权重将Host展开）
+	 * 
+	 * @param dom
+	 *            域名字符串，如"www.taobao.com"
+	 * @param clusters
+	 *            虚拟集群列表，可以是多个，请使用英文逗号隔开，如：DEFAULT,TCP
+	 * @param listener
+	 */</div><span>	/*...*/</span></td>
+    </tr>
+    <tr>
+      <td class='line'>400</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>	public static void listen(String dom, String clusters, HostListener listener) {</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>401</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>		EventDispatcher.addListener(dom, clusters, listener);</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>402</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>	}</pre></td>
+    </tr>
+    <tr><td class='line'></td><td colspan='2'>&nbsp;</td></tr>
+    <tr>
+      <td class='line'>404</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>	public static void unlisten(String dom, HostListener listener) {</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>405</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>		EventDispatcher.removeListener(dom, StringUtils.EMPTY, listener);</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>406</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>	}</pre></td>
+    </tr>
+    <tr><td class='line'></td><td colspan='2'>&nbsp;</td></tr>
+    <tr>
+      <td class='line'>408</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>	public static void setListenerExecutor(ExecutorService executor) {</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>409</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>		EventDispatcher.setExecutor(executor);</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>410</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>	}</pre></td>
+    </tr>
+    <tr><td class='line'></td><td colspan='2'>&nbsp;</td></tr>
+    <tr>
+      <td class='line'>412</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>	public static String getEncoding() {</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>413</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>		return encoding;</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>414</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>	}</pre></td>
+    </tr>
+    <tr><td class='line'></td><td colspan='2'>&nbsp;</td></tr>
+    <tr>
+      <td class='line'>416</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>	public static void setEncoding(String encoding) {</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>417</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>		VIPClient.encoding = encoding;</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>418</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>	}</pre></td>
+    </tr>
+    <tr><td class='line'></td><td colspan='2'>&nbsp;</td></tr>
+    <tr>
+      <td class='line'>420</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>	public static String getCacheDir() {</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>421</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>		return cacheDir;</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>422</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>	}</pre></td>
+    </tr>
+    <tr><td class='line'></td><td colspan='2'>&nbsp;</td></tr>
+    <tr>
+      <td class='line'>424</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>	public static String getLogPath() {</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>425</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>		return logPath;</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>426</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>	}</pre></td>
+    </tr>
+    <tr><td class='line'></td><td colspan='2'>&nbsp;</td></tr>
+    <tr>
+      <td class='line'>428</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>	public static String getJmenv() {</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>429</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>		return VIPClient.jmenv;</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>430</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>	}</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>431</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>}</pre></td>
+    </tr>
+  </table>
+</body>
+</html>

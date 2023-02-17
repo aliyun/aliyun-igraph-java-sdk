@@ -1,0 +1,26 @@
+#!/bin/sh
+
+#remote machine
+export remote_machine="chekong.ygm@10.101.73.126"
+
+#the dir used to rsync in remote machine
+export remote_dir="/home/chekong.ygm/test/RemoteCmd-igraph_client_test_case"
+
+export rsync_local2remote_params="\
+--exclude /.git/*      \
+--exclude /.settings/* \
+--exclude /build       \
+"
+
+export rsync_remote2local_dir="result"
+
+export rsync_remote2local_params="\
+--exclude /build              \
+"
+echo rsync_local2remote_params:[$rsync_local2remote_params]
+echo rsync_remote2local_dir:[$rsync_remote2local_dir]
+echo rsync_remote2local_params:[$rsync_remote2local_params]
+
+
+#do copy this file to RemoteCmd.cfg
+# cp RemoteCmd.cfg.sample RemoteCmd.cfg

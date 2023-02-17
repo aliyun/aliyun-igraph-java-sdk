@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>MatchRecord.java</title>
+  <meta http-equiv='Content-Type' content='text/html; charset=UTF-8'/>
+  <link rel='stylesheet' type='text/css' href='../../../../../coverage.css'/>
+  <link rel='shortcut icon' type='image/png' href='../../../../../logo.png'/>
+  <script type='text/javascript' src='../../../../../coverage.js'></script>
+  <script type='text/javascript' src='../../../../../prettify.js'></script>
+</head>
+<body onload='prettyPrint()'>
+  <table cellpadding='0' cellspacing='1'>
+    <caption>igraph_client_java/src/main/java/com/taobao/igraph/client/model/MatchRecord.java</caption>
+    <tr>
+      <td class='line'>1</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>package com.taobao.igraph.client.core.model;</pre></td>
+    </tr>
+    <tr><td class='line'></td><td colspan='2'>&nbsp;</td></tr>
+    <tr>
+      <td class='line'></td><td>&nbsp;</td>
+      <td><pre class='imports prettyprint' onclick='showHideLines(this)'><div>import java.io.UnsupportedEncodingException;
+import java.util.Map;
+
+import lombok.NonNull;
+
+import com.google.protobuf.ByteString;
+import com.taobao.igraph.client.proto.PGQueryResultProtocol;
+</div><span>import ...</span></pre></td>
+    </tr>
+    <tr><td class='line'></td><td colspan='2'>&nbsp;</td></tr>
+    <tr>
+      <td class='line'></td><td>&nbsp;</td>
+      <td class='comment' onclick='showHideLines(this)'><div>/**
+ * Created by chekong.ygm on 15/10/15.
+ */</div><span>/*...*/</span></td>
+    </tr>
+    <tr>
+      <td class='line'>14</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>public class MatchRecord {</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>15</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>    private PGQueryResultProtocol.MatchRecord pbMatchRecord;</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>16</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>    private Map&lt;String, Integer> fieldName2IndexMap;</pre></td>
+    </tr>
+    <tr><td class='line'></td><td colspan='2'>&nbsp;</td></tr>
+    <tr>
+      <td class='line'>18</td><td class='count'>0</td>
+      <td><pre class='prettyprint uncovered' id='l18s0'>    public enum EncodeType{</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>19</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>        UTF8,GBK</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>20</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>    }</pre></td>
+    </tr>
+    <tr><td class='line'></td><td colspan='2'>&nbsp;</td></tr>
+    <tr>
+      <td class='line'>22</td><td class='count'>1</td>
+      <td><pre class='prettyprint covered' id='l22s0'>    protected MatchRecord(PGQueryResultProtocol.MatchRecord pbMatchRecord, Map&lt;String, Integer> fieldName2IndexMap) {</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>23</td><td class='count'>1</td>
+      <td><pre class='prettyprint covered' id='l23s0'>        this.pbMatchRecord = pbMatchRecord;</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>24</td><td class='count'>1</td>
+      <td><pre class='prettyprint covered' id='l24s0'>        this.fieldName2IndexMap = fieldName2IndexMap;</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>25</td><td class='count'>1</td>
+      <td><pre class='prettyprint covered' id='l25s0'>    }</pre></td>
+    </tr>
+    <tr><td class='line'></td><td colspan='2'>&nbsp;</td></tr>
+    <tr>
+      <td class='line'></td><td>&nbsp;</td>
+      <td class='comment' onclick='showHideLines(this)'><div>    /**
+     * 根据字段名，查询字段值
+     *
+     * @param fieldName
+     *            字段名
+     * @param encodeType
+     *            编码方式UTF-8 或者 GBK
+     * @return 若包含字段值时，返回字段值；否则返回null
+     *
+     * @see #getFieldValueInBytes(String)
+     */</div><span>    /*...*/</span></td>
+    </tr>
+    <tr>
+      <td class='line'>38</td><td class='count'>0</td>
+      <td><pre class='prettyprint jmp'>    <span id='l38s0' title='Executions: 0' class='uncovered'>public String getFieldValue(@NonNull String fieldName, @NonNull EncodeType encodeType) {</span></pre></td>
+    </tr>
+    <tr>
+      <td class='line'>39</td><td class='count'>0</td>
+      <td><pre class='prettyprint uncovered' id='l39s0'>        byte[] valueInBytes = getFieldValueInBytes(fieldName);</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>40</td><td class='count'>0</td>
+      <td><pre class='prettyprint jmp'>        <span id='l40s0' title='Executions: 0' class='uncovered'>if (valueInBytes == null)</span> {</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>41</td><td class='count'>0</td>
+      <td><pre class='prettyprint uncovered' id='l41s0'>            return null;</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>42</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>        }</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>43</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>        try {</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>44</td><td class='count'>0</td>
+      <td><pre class='prettyprint jmp'>            <span id='l44s0' title='Executions: 0' class='uncovered'>if (encodeType == EncodeType.UTF8)</span> {</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>45</td><td class='count'>0</td>
+      <td><pre class='prettyprint uncovered' id='l45s0'>                return new String(valueInBytes, "UTF-8");</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>46</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>            } else {</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>47</td><td class='count'>0</td>
+      <td><pre class='prettyprint uncovered' id='l47s0'>                return new String(valueInBytes, "GBK");</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>48</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>            }</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>49</td><td class='count'>0</td>
+      <td><pre class='prettyprint uncovered' id='l49s0'>        } catch (UnsupportedEncodingException e) {</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>50</td><td class='count'>0</td>
+      <td><pre class='prettyprint uncovered' id='l50s0'>            return null;</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>51</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>        }</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>52</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>    }</pre></td>
+    </tr>
+    <tr><td class='line'></td><td colspan='2'>&nbsp;</td></tr>
+    <tr>
+      <td class='line'></td><td>&nbsp;</td>
+      <td class='comment' onclick='showHideLines(this)'><div>    /**
+     * 根据字段名，查询字段值
+     *
+     * @param fieldName
+     *            字段名
+     * @param encodeType
+     *            编码方式UTF-8 或者 GBK
+     * @return 若包含字段值时，返回字段值；否则返回null
+     *
+     * @see #getFieldValueInBytes(String)
+     */</div><span>    /*...*/</span></td>
+    </tr>
+    <tr>
+      <td class='line'>65</td><td class='count'>15000000</td>
+      <td><pre class='prettyprint jmp'>    <span id='l65s0' title='Executions: 15000000' class='covered'>public String getFieldValue(@NonNull String fieldName, @NonNull String encodeType) {</span></pre></td>
+    </tr>
+    <tr>
+      <td class='line'>66</td><td class='count'>15000000</td>
+      <td><pre class='prettyprint covered' id='l66s0'>        byte[] valueInBytes = getFieldValueInBytes(fieldName);</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>67</td><td class='count'>15000000</td>
+      <td><pre class='prettyprint jmp'>        <span id='l67s0' title='Executions: 15000000' class='covered'>if (valueInBytes == null)</span> {</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>68</td><td class='count'>0</td>
+      <td><pre class='prettyprint uncovered' id='l68s0'>            return null;</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>69</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>        }</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>70</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>        try {</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>71</td><td class='count'>15000000</td>
+      <td><pre class='prettyprint covered' id='l71s0'>            return new String(valueInBytes, encodeType);</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>72</td><td class='count'>0</td>
+      <td><pre class='prettyprint uncovered' id='l72s0'>        } catch (UnsupportedEncodingException e) {</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>73</td><td class='count'>0</td>
+      <td><pre class='prettyprint uncovered' id='l73s0'>            return null;</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>74</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>        }</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>75</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>    }</pre></td>
+    </tr>
+    <tr><td class='line'></td><td colspan='2'>&nbsp;</td></tr>
+    <tr>
+      <td class='line'></td><td>&nbsp;</td>
+      <td class='comment' onclick='showHideLines(this)'><div>    /**
+     * 根据字段号，查询字段值&lt;br/>
+     * 推荐使用这个方法来获取字段值，避免不必要的根据字段名查询字段序号的过程
+     *
+     * @param fieldIndex
+     *            字段号
+     * @param encodeType
+     *            编码方式UTF-8 或者 GBK
+     * @return 若包含字段值时，返回字段值；否则返回null
+     * @see #getFieldValueInBytes(int)
+     */</div><span>    /*...*/</span></td>
+    </tr>
+    <tr>
+      <td class='line'>88</td><td class='count'>0</td>
+      <td><pre class='prettyprint jmp'>    <span id='l88s0' title='Executions: 0' class='uncovered'>public String getFieldValue(int fieldIndex, @NonNull String encodeType)</span></pre></td>
+    </tr>
+    <tr>
+      <td class='line'>89</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>            throws UnsupportedEncodingException {</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>90</td><td class='count'>0</td>
+      <td><pre class='prettyprint uncovered' id='l90s0'>        byte[] valueInBytes = getFieldValueInBytes(fieldIndex);</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>91</td><td class='count'>0</td>
+      <td><pre class='prettyprint jmp'>        <span id='l91s0' title='Executions: 0' class='uncovered'>if (valueInBytes == null)</span> {</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>92</td><td class='count'>0</td>
+      <td><pre class='prettyprint uncovered' id='l92s0'>            return null;</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>93</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>        }</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>94</td><td class='count'>0</td>
+      <td><pre class='prettyprint uncovered' id='l94s0'>        return new String(valueInBytes, encodeType);</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>95</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>    }</pre></td>
+    </tr>
+    <tr><td class='line'></td><td colspan='2'>&nbsp;</td></tr>
+    <tr>
+      <td class='line'></td><td>&nbsp;</td>
+      <td class='comment' onclick='showHideLines(this)'><div>    /**
+     * 根据字段名，查询字段值
+     * 
+     * @param fieldName
+     *            字段名
+     * @return 若包含字段值时，返回字段值；否则返回null
+     *
+     * @see #getFieldValueInBytes(String)
+     */</div><span>    /*...*/</span></td>
+    </tr>
+    <tr>
+      <td class='line'>106</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>    @Deprecated</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>107</td><td class='count'>0</td>
+      <td><pre class='prettyprint jmp'>    <span id='l107s0' title='Executions: 0' class='uncovered'>public String getFieldValue(@NonNull String fieldName) {</span></pre></td>
+    </tr>
+    <tr>
+      <td class='line'>108</td><td class='count'>0</td>
+      <td><pre class='prettyprint uncovered' id='l108s0'>        byte[] valueInBytes = getFieldValueInBytes(fieldName);</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>109</td><td class='count'>0</td>
+      <td><pre class='prettyprint jmp'>        <span id='l109s0' title='Executions: 0' class='uncovered'>if (valueInBytes == null)</span> {</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>110</td><td class='count'>0</td>
+      <td><pre class='prettyprint uncovered' id='l110s0'>            return null;</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>111</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>        }</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>112</td><td class='count'>0</td>
+      <td><pre class='prettyprint uncovered' id='l112s0'>        return new String(valueInBytes);</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>113</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>    }</pre></td>
+    </tr>
+    <tr><td class='line'></td><td colspan='2'>&nbsp;</td></tr>
+    <tr>
+      <td class='line'></td><td>&nbsp;</td>
+      <td class='comment' onclick='showHideLines(this)'><div>    /**
+     * 根据字段号，查询字段值&lt;br/>
+     * 推荐使用这个方法来获取字段值，避免不必要的根据字段名查询字段序号的过程
+     *
+     * @param fieldIndex
+     *            字段号
+     * @return 若包含字段值时，返回字段值；否则返回null
+     * @see #getFieldValueInBytes(int)
+     */</div><span>    /*...*/</span></td>
+    </tr>
+    <tr>
+      <td class='line'>124</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>    @Deprecated</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>125</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>    public String getFieldValue(int fieldIndex) {</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>126</td><td class='count'>0</td>
+      <td><pre class='prettyprint uncovered' id='l126s0'>        byte[] valueInBytes = getFieldValueInBytes(fieldIndex);</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>127</td><td class='count'>0</td>
+      <td><pre class='prettyprint jmp'>        <span id='l127s0' title='Executions: 0' class='uncovered'>if (valueInBytes == null)</span> {</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>128</td><td class='count'>0</td>
+      <td><pre class='prettyprint uncovered' id='l128s0'>            return null;</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>129</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>        }</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>130</td><td class='count'>0</td>
+      <td><pre class='prettyprint uncovered' id='l130s0'>        return new String(valueInBytes);</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>131</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>    }</pre></td>
+    </tr>
+    <tr><td class='line'></td><td colspan='2'>&nbsp;</td></tr>
+    <tr>
+      <td class='line'></td><td>&nbsp;</td>
+      <td class='comment' onclick='showHideLines(this)'><div>    /**
+     * 根据字段名，查询字段值
+     *
+     * @param fieldName
+     *            字段名
+     * @return 若包含字段值时，返回字段值；否则返回null
+     *
+     * @see #getFieldValue(String)
+     */</div><span>    /*...*/</span></td>
+    </tr>
+    <tr>
+      <td class='line'>142</td><td class='count'>20000000</td>
+      <td><pre class='prettyprint jmp'>    <span id='l142s0' title='Executions: 20000000' class='covered'>public byte[] getFieldValueInBytes(@NonNull String fieldName) {</span></pre></td>
+    </tr>
+    <tr>
+      <td class='line'>143</td><td class='count'>20000000</td>
+      <td><pre class='prettyprint covered' id='l143s0'>        Integer index = fieldName2IndexMap.get(fieldName);</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>144</td><td class='count'>20000000</td>
+      <td><pre class='prettyprint jmp'>        <span id='l144s0' title='Executions: 20000000' class='covered'>if (index == null)</span> {</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>145</td><td class='count'>0</td>
+      <td><pre class='prettyprint uncovered' id='l145s0'>            return null;</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>146</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>        }</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>147</td><td class='count'>20000000</td>
+      <td><pre class='prettyprint covered' id='l147s0'>        return getFieldValueInBytes(index);</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>148</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>    }</pre></td>
+    </tr>
+    <tr><td class='line'></td><td colspan='2'>&nbsp;</td></tr>
+    <tr>
+      <td class='line'></td><td>&nbsp;</td>
+      <td class='comment' onclick='showHideLines(this)'><div>    /**
+     * 根据字段号，查询字段值&lt;br/>
+     * 推荐使用这个方法来获取字段值，避免不必要的根据字段名查询字段序号的过程
+     *
+     * @param fieldIndex
+     *            字段号
+     * @return 若包含字段值时，返回字段值；否则返回null
+     * @see #getFieldValue(int)
+     */</div><span>    /*...*/</span></td>
+    </tr>
+    <tr>
+      <td class='line'>159</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>    public byte[] getFieldValueInBytes(int fieldIndex) {</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>160</td><td class='count'>20000000</td>
+      <td><pre class='prettyprint jmp'>        <span id='l160s0' title='Executions: 20000000' class='covered'>if (fieldIndex &lt; 0</span> || <span id='l160s1' title='Executions: 20000000' class='covered'>fieldIndex >= pbMatchRecord.getFieldValueCount())</span> {</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>161</td><td class='count'>0</td>
+      <td><pre class='prettyprint uncovered' id='l161s0'>            return null;</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>162</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>        }</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>163</td><td class='count'>20000000</td>
+      <td><pre class='prettyprint covered' id='l163s0'>        ByteString fieldValue = pbMatchRecord.getFieldValue(fieldIndex);</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>164</td><td class='count'>20000000</td>
+      <td><pre class='prettyprint covered' id='l164s0'>        return fieldValue.toByteArray();</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>165</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>    }</pre></td>
+    </tr>
+    <tr><td class='line'></td><td colspan='2'>&nbsp;</td></tr>
+    <tr>
+      <td class='line'>167</td><td>&nbsp;</td>
+      <td><pre class='comment'>    /** @return 字段数量 */</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>168</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>    public int getFieldValueCount() {</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>169</td><td class='count'>0</td>
+      <td><pre class='prettyprint uncovered' id='l169s0'>        return pbMatchRecord.getFieldValueCount();</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>170</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>    }</pre></td>
+    </tr>
+    <tr>
+      <td class='line'>171</td><td>&nbsp;</td>
+      <td><pre class='prettyprint'>}</pre></td>
+    </tr>
+  </table>
+</body>
+</html>
