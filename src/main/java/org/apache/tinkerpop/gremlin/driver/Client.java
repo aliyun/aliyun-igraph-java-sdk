@@ -71,8 +71,6 @@ public interface Client {
      */
     public ResultSet submit(final Traversal traversal);
 
-    public ResultSet submit(final Traversal traversal, String submitId);
-
     /**
      * An asynchronous version of {@link #submit(Traversal)}. Results are returned as Traverser instances and
      * are therefore bulked, meaning that to properly iterate the contents of the result each Traverser#bulk()
@@ -82,8 +80,6 @@ public interface Client {
      * @return CompletableFuture
      */
     public CompletableFuture<ResultSet> submitAsync(final Traversal traversal);
-
-    public CompletableFuture<ResultSet> submitAsync(final Traversal traversal, String submitId);
 
     /**
      * Submit a {@link Bytecode} to the server for remote execution. Results are returned as Traverser

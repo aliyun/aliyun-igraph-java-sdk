@@ -104,16 +104,6 @@ public class Client extends IGraphClient implements org.apache.tinkerpop.gremlin
     }
 
     @Override
-    public ResultSet submit(Traversal traversal, String submitId) {
-        try {
-
-            return submitAsync(traversal, submitId).get();
-        } catch (Exception e) {
-            throw new IGraphClientException("submit failed with Exception [ " + e.getMessage() + " ]", e);
-        }
-    }
-
-    @Override
     public CompletableFuture<ResultSet> submitAsync(final Traversal traversal) {
         GraphTraversal graphTraversal = (GraphTraversal) traversal;
         GremlinQueryType gremlinQueryType = graphTraversal.getGremlinQueryType();
@@ -122,31 +112,6 @@ public class Client extends IGraphClient implements org.apache.tinkerpop.gremlin
             switch (gremlinQueryType) {
                 case SEARCH:
                     future = searchAsync(new GremlinSession(this.config), new GremlinQuery(graphTraversal));
-                    break;
-                case UPDATE:
-                    future = gremlinUpdateAsync(new UpdateSession(), graphTraversal.getUpdateQuery());
-                    break;
-                case DELETE:
-                    future = gremlinDeleteAsync(new UpdateSession(), graphTraversal.getUpdateQuery());
-                    break;
-                default:
-                    throw new IGraphQueryException("invalid query type: " + gremlinQueryType.name());
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        return future;
-    }
-
-    @Override
-    public CompletableFuture<ResultSet> submitAsync(final Traversal traversal, String submitId) {
-        GraphTraversal graphTraversal = (GraphTraversal) traversal;
-        GremlinQueryType gremlinQueryType = graphTraversal.getGremlinQueryType();
-        CompletableFuture<ResultSet> future;
-        try {
-            switch (gremlinQueryType) {
-                case SEARCH:
-                    future = searchAsync(new GremlinSession(this.config), submitId, new GremlinQuery(graphTraversal));
                     break;
                 case UPDATE:
                     future = gremlinUpdateAsync(new UpdateSession(), graphTraversal.getUpdateQuery());
@@ -354,18 +319,6 @@ public class Client extends IGraphClient implements org.apache.tinkerpop.gremlin
         }, getExecutor());
     }
 
-    private CompletableFuture<ResultSet> searchAsync(@NonNull GremlinSession gremlinSession,
-                                                     @NonNull String submitId,
-                                                     @NonNull GremlinQuery gremlinQuery) {
-        return CompletableFuture.supplyAsync(() -> {
-            IGraphResultSet result = new IGraphResultSet(getExecutor());
-            RequestContext requestContext = gremlinSession.getRequestContext();
-            GremlinConfig gremlinConfig = gremlinSession.getGremlinConfig();
-            doRetryableSearch(result, requestContext, gremlinConfig, submitId, gremlinQuery);
-            return result;
-        }, getExecutor());
-    }
-
     private void doRetryableSearch(IGraphMultiResultSet multiResult,
                                    RequestContext requestContext,
                                    GremlinConfig gremlinConfig,
@@ -420,38 +373,6 @@ public class Client extends IGraphClient implements org.apache.tinkerpop.gremlin
                 return iGraphResultSet;
             }, getExecutor());
        result.setResultSetFuture(resultSetFuture);
-    }
-
-    private void doRetryableSearch(IGraphResultSet result,
-                                   RequestContext requestContext,
-                                   GremlinConfig gremlinConfig,
-                                   String submitId,
-                                   GremlinQuery gremlinQuery) {
-        requestContext.setHasRetryTimes(requestContext.getHasRetryTimes() + 1);
-        CompletableFuture<IGraphResultSet> resultSetFuture =
-            doSearchAsync(requestContext, gremlinConfig, submitId, gremlinQuery).handleAsync((response, exception) -> {
-                IGraphResultSet iGraphResultSet = null;
-                try {
-                    IGraphMultiResultSet iGraphMultiResultSet =
-                        handleResult(requestContext, gremlinConfig, response, exception);
-                    iGraphResultSet = (IGraphResultSet) iGraphMultiResultSet.getSingleQueryResult();
-                    if (iGraphResultSet == null) {
-                        throw new IGraphQueryException(IGraphQueryException.buildErrorMessage(requestContext,
-                            Client.buildTotalErrorMsg(iGraphMultiResultSet)));
-                    }
-                } catch (IGraphRetryableException | IGraphTimeoutException e) {
-                    log.warn("search failed, hasRetryTimes[{}], config.retryTimes[{}], Exception:[{}]",
-                        requestContext.getHasRetryTimes(), gremlinConfig.getRetryTimes(), e.getMessage());
-                    requestContext.endServerRequest();
-                    if (requestContext.getHasRetryTimes() < gremlinConfig.getRetryTimes()) {
-                        doRetryableSearch(result, requestContext, gremlinConfig, gremlinQuery);
-                    } else {
-                        throw e;
-                    }
-                }
-                return iGraphResultSet;
-            }, getExecutor());
-        result.setResultSetFuture(resultSetFuture);
     }
 
     private CompletableFuture<ResultSet> gremlinUpdateAsync(@NonNull UpdateSession updateSession,
@@ -521,15 +442,6 @@ public class Client extends IGraphClient implements org.apache.tinkerpop.gremlin
         return requester.sendRequestAsync(requestContext, gremlinConfig.getTimeoutInMs(), config.getUserAuth(), true);
     }
 
-    private CompletableFuture<Response> doSearchAsync(@NonNull RequestContext requestContext,
-                                                      @NonNull GremlinConfig gremlinConfig,
-                                                      @NonNull String submitId,
-                                                      @NonNull GremlinQuery... queries) throws IGraphServerException {
-        encodeRequest(requestContext, gremlinConfig, submitId, queries);
-        requestContext.setServerAddress(config.getSearchDomain());
-        return requester.sendRequestAsync(requestContext, gremlinConfig.getTimeoutInMs(), config.getUserAuth(), true);
-    }
-
     @Override
     protected CompletableFuture<Response> doUpdateAsync(UpdateSession updateSession,
                                                         Integer updateType,
@@ -554,7 +466,6 @@ public class Client extends IGraphClient implements org.apache.tinkerpop.gremlin
         }
         IGraphMultiResultSet iGraphMultiResultSet =
             IGraphResultParser.parseGremlin(requestContext, bytes, gremlinConfig.getOutfmt());
-        log.debug("search with requestContext {}", requestContext);
         if (!requestContext.isValidResult()) {
             throw new IGraphQueryException(IGraphQueryException.buildErrorMessage(requestContext,
                 Client.buildTotalErrorMsg(iGraphMultiResultSet)));
