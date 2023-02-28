@@ -338,6 +338,7 @@ public class Client extends IGraphClient implements org.apache.tinkerpop.gremlin
             IGraphMultiResultSet multiResult = new IGraphMultiResultSet(getExecutor());
             RequestContext requestContext = gremlinSession.getRequestContext();
             GremlinConfig gremlinConfig = gremlinSession.getGremlinConfig();
+            requestContext.beginRequest();
             doRetryableSearch(multiResult, requestContext, gremlinConfig, gremlinQuery);
             return multiResult;
         }, getExecutor());
@@ -349,6 +350,7 @@ public class Client extends IGraphClient implements org.apache.tinkerpop.gremlin
             IGraphResultSet result = new IGraphResultSet(getExecutor());
             RequestContext requestContext = gremlinSession.getRequestContext();
             GremlinConfig gremlinConfig = gremlinSession.getGremlinConfig();
+            requestContext.beginRequest();
             doRetryableSearch(result, requestContext, gremlinConfig, gremlinQuery);
             return result;
         }, getExecutor());
@@ -361,6 +363,7 @@ public class Client extends IGraphClient implements org.apache.tinkerpop.gremlin
             IGraphResultSet result = new IGraphResultSet(getExecutor());
             RequestContext requestContext = gremlinSession.getRequestContext();
             GremlinConfig gremlinConfig = gremlinSession.getGremlinConfig();
+            requestContext.beginRequest();
             doRetryableSearch(result, requestContext, gremlinConfig, submitId, gremlinQuery);
             return result;
         }, getExecutor());
@@ -376,6 +379,8 @@ public class Client extends IGraphClient implements org.apache.tinkerpop.gremlin
                 IGraphMultiResultSet iGraphMultiResultSet = null;
                 try {
                     iGraphMultiResultSet = handleResult(requestContext, gremlinConfig, response, exception);
+                    requestContext.endRequest();
+                    log.debug("search with requestContext {}", requestContext);
                 } catch (IGraphRetryableException | IGraphTimeoutException e) {
                     log.warn("search failed, hasRetryTimes[{}], config.retryTimes[{}], Exception:[{}]",
                         requestContext.getHasRetryTimes(), gremlinConfig.getRetryTimes(), e.getMessage());
@@ -383,6 +388,8 @@ public class Client extends IGraphClient implements org.apache.tinkerpop.gremlin
                     if (requestContext.getHasRetryTimes() < gremlinConfig.getRetryTimes()) {
                         doRetryableSearch(multiResult, requestContext, gremlinConfig, gremlinQuery);
                     } else {
+                        requestContext.endRequest();
+                        log.debug("search with requestContext {}", requestContext);
                         throw e;
                     }
                 }
@@ -403,6 +410,8 @@ public class Client extends IGraphClient implements org.apache.tinkerpop.gremlin
                     IGraphMultiResultSet iGraphMultiResultSet =
                         handleResult(requestContext, gremlinConfig, response, exception);
                     iGraphResultSet = (IGraphResultSet) iGraphMultiResultSet.getSingleQueryResult();
+                    requestContext.endRequest();
+                    log.debug("search with requestContext {}", requestContext);
                     if (iGraphResultSet == null) {
                         throw new IGraphQueryException(IGraphQueryException.buildErrorMessage(requestContext,
                             Client.buildTotalErrorMsg(iGraphMultiResultSet)));
@@ -414,6 +423,8 @@ public class Client extends IGraphClient implements org.apache.tinkerpop.gremlin
                     if (requestContext.getHasRetryTimes() < gremlinConfig.getRetryTimes()) {
                         doRetryableSearch(result, requestContext, gremlinConfig, gremlinQuery);
                     } else {
+                        requestContext.endRequest();
+                        log.debug("search with requestContext {}", requestContext);
                         throw e;
                     }
                 }
@@ -435,6 +446,8 @@ public class Client extends IGraphClient implements org.apache.tinkerpop.gremlin
                     IGraphMultiResultSet iGraphMultiResultSet =
                         handleResult(requestContext, gremlinConfig, response, exception);
                     iGraphResultSet = (IGraphResultSet) iGraphMultiResultSet.getSingleQueryResult();
+                    requestContext.endRequest();
+                    log.debug("search with requestContext {}", requestContext);
                     if (iGraphResultSet == null) {
                         throw new IGraphQueryException(IGraphQueryException.buildErrorMessage(requestContext,
                             Client.buildTotalErrorMsg(iGraphMultiResultSet)));
@@ -446,6 +459,8 @@ public class Client extends IGraphClient implements org.apache.tinkerpop.gremlin
                     if (requestContext.getHasRetryTimes() < gremlinConfig.getRetryTimes()) {
                         doRetryableSearch(result, requestContext, gremlinConfig, gremlinQuery);
                     } else {
+                        requestContext.endRequest();
+                        log.debug("search with requestContext {}", requestContext);
                         throw e;
                     }
                 }
@@ -554,7 +569,7 @@ public class Client extends IGraphClient implements org.apache.tinkerpop.gremlin
         }
         IGraphMultiResultSet iGraphMultiResultSet =
             IGraphResultParser.parseGremlin(requestContext, bytes, gremlinConfig.getOutfmt());
-        log.debug("search with requestContext {}", requestContext);
+
         if (!requestContext.isValidResult()) {
             throw new IGraphQueryException(IGraphQueryException.buildErrorMessage(requestContext,
                 Client.buildTotalErrorMsg(iGraphMultiResultSet)));

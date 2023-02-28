@@ -12,6 +12,9 @@ public class RequestContext {
     private String serverAddress;
     private String requestContent;
     private int responseContentLength;
+    private long requestStartNs;
+    private long requestElapsedNs;
+    private boolean isRequestTimerRunning;
     private long queryEncodeStartNs;
     private long queryEncodeElapsedNs;
     private boolean isQueryEncodeTimerRunning;
@@ -29,25 +32,33 @@ public class RequestContext {
     public RequestContext() {
         clear();
     }
+
+    /**
+     * request total latency in ms
+     */
+    public double getRequestLatency() {
+        return (double)requestElapsedNs / NS_TO_MS;
+    }
+
     /**
      * @return query encode latency in ms
      */
-    public long getQueryEncodeLatency() {
-        return queryEncodeElapsedNs / NS_TO_MS;
+    public double getQueryEncodeLatency() {
+        return (double)queryEncodeElapsedNs / NS_TO_MS;
     }
 
     /**
      * @return server sendSearchRequest latency in ms
      */
-    public long getServerRequestLatency() {
-        return serverRequestElapsedNs / NS_TO_MS;
+    public double getServerRequestLatency() {
+        return (double)serverRequestElapsedNs / NS_TO_MS;
     }
 
     /**
      * @return response decode latency in ms
      */
-    public long getResponseDecodeLatency() {
-        return responseDecodeElapsedNs / NS_TO_MS;
+    public double getResponseDecodeLatency() {
+        return (double)responseDecodeElapsedNs / NS_TO_MS;
     }
 
     @Override
@@ -72,6 +83,7 @@ public class RequestContext {
                 + "], responseContentLength=[" + responseContentLength + "], queryEncodeLatency=["
                 + getQueryEncodeLatency() + "], serverRequestLatency=[" + getServerRequestLatency()
                 + "], responseDecodeLatency=[" + getResponseDecodeLatency() + "]"
+                + ", totalRequestLatency=[" + getRequestLatency() + "]"
                 + ", hasRetryTime=[" + hasRetryTimes + "], requestId=[" + requestId + "]";
     }
 
@@ -79,6 +91,10 @@ public class RequestContext {
         requestContent = null;
         responseContentLength = 0;
         serverAddress = null;
+
+        requestStartNs = 0L;
+        requestElapsedNs = 0L;
+        isRequestTimerRunning = false;
 
         queryEncodeStartNs = 0L;
         queryEncodeElapsedNs = 0L;
@@ -93,6 +109,20 @@ public class RequestContext {
         isResponseDecodeTimerRunning = false;
         
         hasRetryTimes = 0;
+    }
+
+    public void beginRequest() {
+        if (!isRequestTimerRunning) {
+            requestStartNs = System.nanoTime();
+            isRequestTimerRunning = true;
+        }
+    }
+
+    public void endRequest() {
+        if (isRequestTimerRunning) {
+            requestElapsedNs += System.nanoTime() - queryEncodeStartNs;
+            isRequestTimerRunning = false;
+        }
     }
 
     public void beginQueryEncode() {

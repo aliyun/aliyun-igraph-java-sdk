@@ -13,9 +13,9 @@ public class RequestContextTest {
         Assert.assertNull(requestContext.getRequestContent());
         Assert.assertEquals(0, requestContext.getResponseContentLength());
         Assert.assertNull(requestContext.getServerAddress());
-        Assert.assertEquals(0, requestContext.getQueryEncodeLatency());
-        Assert.assertEquals(0, requestContext.getServerRequestLatency());
-        Assert.assertEquals(0, requestContext.getResponseDecodeLatency());
+        Assert.assertEquals(0, requestContext.getQueryEncodeLatency(), 0.001);
+        Assert.assertEquals(0, requestContext.getServerRequestLatency(), 0.001);
+        Assert.assertEquals(0, requestContext.getResponseDecodeLatency(), 0.001);
     }
 
     @Test
