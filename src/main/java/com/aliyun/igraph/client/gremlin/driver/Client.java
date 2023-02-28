@@ -466,6 +466,7 @@ public class Client extends IGraphClient implements org.apache.tinkerpop.gremlin
         }
         IGraphMultiResultSet iGraphMultiResultSet =
             IGraphResultParser.parseGremlin(requestContext, bytes, gremlinConfig.getOutfmt());
+        log.debug("search with requestContext {}", requestContext);
         if (!requestContext.isValidResult()) {
             throw new IGraphQueryException(IGraphQueryException.buildErrorMessage(requestContext,
                 Client.buildTotalErrorMsg(iGraphMultiResultSet)));
