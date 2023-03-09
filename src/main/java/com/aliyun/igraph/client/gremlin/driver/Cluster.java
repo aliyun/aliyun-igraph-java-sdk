@@ -7,12 +7,13 @@ import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+
 import javax.ws.rs.NotSupportedException;
 
 import com.aliyun.igraph.client.config.ClientConfig;
-import com.aliyun.igraph.client.net.RequesterConfig;
 import com.aliyun.igraph.client.exception.IGraphClientException;
 import com.aliyun.igraph.client.net.Requester;
+import com.aliyun.igraph.client.net.RequesterConfig;
 import com.aliyun.igraph.client.utils.NetUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tinkerpop.gremlin.driver.Connection;
@@ -58,6 +59,8 @@ public class Cluster implements org.apache.tinkerpop.gremlin.driver.Cluster {
                 manager.connectionPoolSettings.socketTimeout);
             requesterConfig.getHttpConnectionConfig().setConnectTimeout(
                 manager.connectionPoolSettings.connectTimeout);
+            requesterConfig.getHttpConnectionConfig().setConnectionIdleTimeout(
+                manager.connectionPoolSettings.connectionIdleTimeout);
             if (requester == null) {
                 requester = new Requester(requesterConfig);
             }
@@ -115,6 +118,7 @@ public class Cluster implements org.apache.tinkerpop.gremlin.driver.Cluster {
             .maxConnPerRoute(settings.connectionPool.maxConnPerRoute)
             .maxConnTotal(settings.connectionPool.maxConnTotal)
             .connectionRequestTimeout(settings.connectionPool.connectionRequestTimeout)
+            .connectionIdleTimeout(settings.connectionPool.connectionIdleTimeout)
             .socketTimeout(settings.connectionPool.socketTimeout)
             .connectTimeout(settings.connectionPool.connectTimeout)
             .retryTimes(settings.retryTimes);
@@ -158,6 +162,7 @@ public class Cluster implements org.apache.tinkerpop.gremlin.driver.Cluster {
         private int maxConnPerRoute = Connection.DEFAULT_CONNECTION_PER_ROUTE;
         private int maxConnTotal = Connection.DEFAULT_MAX_CONNECTION_TOTAL;
         private int connectionRequestTimeout = Connection.DEFAULT_TIMEOUT_MS;
+        private int connectionIdleTimeout = Connection.DEFAULT_IDLE_TIMEOUT_MS;
         private int socketTimeout = Connection.DEFAULT_TIMEOUT_MS;
         private int connectTimeout = Connection.DEFAULT_TIMEOUT_MS;
         private int retryTimes = Connection.DEFAULT_RETRY_TIMES;
@@ -196,6 +201,11 @@ public class Cluster implements org.apache.tinkerpop.gremlin.driver.Cluster {
 
         public Builder connectionRequestTimeout (final int connectionRequestTimeout) {
             this.connectionRequestTimeout = connectionRequestTimeout;
+            return this;
+        }
+
+        public Builder connectionIdleTimeout (final int connectionIdleTimeout) {
+            this.connectionIdleTimeout = connectionIdleTimeout;
             return this;
         }
 
@@ -281,6 +291,10 @@ public class Cluster implements org.apache.tinkerpop.gremlin.driver.Cluster {
 
             if (builder.connectionRequestTimeout < 1) {
                 throw new IllegalArgumentException("connectionRequestTimeout must be be greater than zero");
+            }
+
+            if (builder.connectionIdleTimeout < 1) {
+                throw new IllegalArgumentException("connectionIdleTimeout must be be greater than zero");
             }
 
             if (builder.socketTimeout < 1) {

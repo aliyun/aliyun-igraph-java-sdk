@@ -60,6 +60,11 @@ public class Settings {
          */
         public int connectTimeout = Connection.DEFAULT_TIMEOUT_MS;
 
+        /**
+         * 查询超时时间
+         */
+        public int connectionIdleTimeout = Connection.DEFAULT_IDLE_TIMEOUT_MS;
+
     }
 
     public static class SerializerSettings {

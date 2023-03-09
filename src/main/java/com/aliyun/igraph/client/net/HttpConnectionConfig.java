@@ -12,14 +12,17 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class HttpConnectionConfig {
     private static final int DEFAULT_TIMEOUT_MS = 3000;
+    private static final int DEFAULT_TIMEOUT_60_S = 60000;
     private int socketTimeout = DEFAULT_TIMEOUT_MS;
     private int connectTimeout = DEFAULT_TIMEOUT_MS;
     private int connectionRequestTimeout = DEFAULT_TIMEOUT_MS;
+    private int connectionIdleTimeout = DEFAULT_TIMEOUT_60_S;
 
     public HttpConnectionConfig(HttpConnectionConfig other) {
         this.socketTimeout = other.socketTimeout;
         this.connectTimeout = other.connectTimeout;
         this.connectionRequestTimeout = other.connectionRequestTimeout;
+        this.connectionIdleTimeout = other.connectionIdleTimeout;
     }
 
     @Override

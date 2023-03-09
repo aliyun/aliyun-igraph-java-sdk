@@ -32,6 +32,8 @@ public class Requester {
         builder.setMaxConnectionsPerHost(requesterConfig.getMaxConnPerRoute());
         builder.setRequestTimeout(httpConnectionConfig.getConnectionRequestTimeout());
         builder.setConnectTimeout(httpConnectionConfig.getConnectTimeout());
+        builder.setTcpNoDelay(true);
+        builder.setPooledConnectionIdleTimeout(httpConnectionConfig.getConnectionIdleTimeout());
 
         HashedWheelTimer timer = new HashedWheelTimer(10, TimeUnit.MILLISECONDS);
         builder.setNettyTimer(timer);
