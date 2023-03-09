@@ -33,6 +33,7 @@ public class Requester {
         builder.setRequestTimeout(httpConnectionConfig.getConnectionRequestTimeout());
         builder.setConnectTimeout(httpConnectionConfig.getConnectTimeout());
         builder.setTcpNoDelay(true);
+        builder.setPooledConnectionIdleTimeout(120000);
 
         HashedWheelTimer timer = new HashedWheelTimer(10, TimeUnit.MILLISECONDS);
         builder.setNettyTimer(timer);
