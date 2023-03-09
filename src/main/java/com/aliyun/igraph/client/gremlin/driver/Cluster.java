@@ -268,6 +268,7 @@ public class Cluster implements org.apache.tinkerpop.gremlin.driver.Cluster {
             connectionPoolSettings.maxConnPerRoute = builder.maxConnPerRoute;
             connectionPoolSettings.maxConnTotal = builder.maxConnTotal;
             connectionPoolSettings.connectionRequestTimeout = builder.connectionRequestTimeout;
+            connectionPoolSettings.connectionIdleTimeout = builder.connectionIdleTimeout;
             connectionPoolSettings.socketTimeout = builder.socketTimeout;
             connectionPoolSettings.connectTimeout = builder.connectTimeout;
         }
