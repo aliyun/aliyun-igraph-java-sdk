@@ -24,6 +24,11 @@ The easiest way to incorporate the SDK into your Java project is to use Maven. I
       <version>{lastest-sdk-version}</version>
 </dependency>
 ```
+Changes in version 1.0.5
+-----------------------
+* client connection 空闲连接的保留时长可配置，解决低流量场景下的链接重建问题
+* netty 配置设置 TcpNoDelay 为 True
+
 Changes in version 1.0.4
 -----------------------
 * 升级async-http-client到最新版本
