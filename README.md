@@ -24,6 +24,10 @@ The easiest way to incorporate the SDK into your Java project is to use Maven. I
       <version>{lastest-sdk-version}</version>
 </dependency>
 ```
+Changes in version 1.0.6
+-----------------------
+* client 支持 5210 错误码的重试
+
 Changes in version 1.0.5
 -----------------------
 * client connection 空闲连接的保留时长可配置，解决低流量场景下的链接重建问题
