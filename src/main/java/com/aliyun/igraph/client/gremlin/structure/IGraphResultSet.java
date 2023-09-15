@@ -10,6 +10,8 @@ import java.util.stream.StreamSupport;
 
 import com.aliyun.igraph.client.exception.IGraphQueryException;
 import com.aliyun.igraph.client.proto.gremlin_fb.MatchRecords;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import org.apache.tinkerpop.gremlin.driver.Host;
 import org.apache.tinkerpop.gremlin.driver.Result;
 import org.apache.tinkerpop.gremlin.driver.ResultSet;
@@ -220,5 +222,18 @@ public class IGraphResultSet implements ResultSet, Serializable {
                 throw new NotSupportedException();
             }
         };
+    }
+
+    @Override
+    public Object getJson() {
+        JsonArray jsonArray = new JsonArray();
+        Gson gson = new Gson();
+        if (resultObjects == null){
+            return jsonArray;
+        }
+        for (Result resultObject : resultObjects) {
+            jsonArray.add(gson.toJsonTree(resultObject.getJson()));
+        }
+        return jsonArray;
     }
 }

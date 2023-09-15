@@ -1,6 +1,8 @@
 package com.aliyun.igraph.client.gremlin.structure;
 
 import com.aliyun.igraph.client.proto.gremlin_fb.*;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import lombok.NonNull;
 import org.apache.tinkerpop.gremlin.structure.Element;
 import org.apache.tinkerpop.gremlin.structure.Graph;
@@ -1082,6 +1084,60 @@ public abstract class IGraphElement implements Element {
         }
         return null;
     }
+
+
+    public Object toJson () {
+        return null;
+    }
+
+    protected void addToJsonObject(@NonNull JsonObject jsonObject, String fieldName, FieldType type) {
+        Gson gson = new Gson();
+        switch (type) {
+            case BOOL:
+                jsonObject.addProperty(fieldName, getBoolean(fieldName));
+                break;
+            case INT8:
+            case INT16:
+            case INT32:
+            case INT64:
+            case UINT8:
+            case UINT16:
+            case UINT32:
+            case UINT64:
+                jsonObject.addProperty(fieldName, getLong(fieldName));
+                break;
+            case FLOAT:
+            case DOUBLE:
+                jsonObject.addProperty(fieldName, getDouble(fieldName));
+                break;
+            case STRING:
+                jsonObject.addProperty(fieldName, getString(fieldName));
+                break;
+            case MULTIINT8:
+            case MULTIINT16:
+            case MULTIINT32:
+            case MULTIINT64:
+            case MULTIUINT8:
+            case MULTIUINT16:
+            case MULTIUINT32:
+            case MULTIUINT64:
+                List<Long> longs = getLongList(fieldName);
+                jsonObject.add(fieldName, gson.toJsonTree(longs));
+                break;
+            case MULTIFLOAT:
+            case MULTIDOUBLE:
+                List<Double> doubles = getDoubleList(fieldName);
+                jsonObject.add(fieldName, gson.toJsonTree(doubles));
+                break;
+            case MULTISTRING:
+                List<String> strings = getStringList(fieldName);
+                jsonObject.add(fieldName, gson.toJsonTree(strings));
+                break;
+            default:
+                break;
+        }
+    }
+
 
     @Override
     public String toString() {

@@ -8,6 +8,10 @@ import com.aliyun.igraph.client.gremlin.gremlin_api.T;
 import com.aliyun.igraph.client.gremlin.structure.IGraphMultiResultSet;
 import com.aliyun.igraph.client.gremlin.structure.IGraphResult;
 import com.aliyun.igraph.client.gremlin.structure.IGraphResultSet;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import lombok.SneakyThrows;
 import org.apache.tinkerpop.gremlin.driver.Result;
 import org.apache.tinkerpop.gremlin.driver.ResultSet;
@@ -17,6 +21,7 @@ import org.apache.tinkerpop.gremlin.process.traversal.Pop;
 import org.apache.tinkerpop.gremlin.structure.*;
 import org.javatuples.Pair;
 import org.junit.Assert;
+import org.skyscreamer.jsonassert.JSONAssert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,12 +79,63 @@ public class GremlinTest {
             add("{\"label\":\"person\",\"age\":35,\"name\":\"peter\",\"pk\":\"6\"}");
         }};
 
+        public JsonArray generateKvResultList(){
+            JsonArray jsonArray = new JsonArray();
+            jsonArray.add(gnerateKvResult("person", "1", "marko", 29));
+            jsonArray.add(gnerateKvResult("person", "4", "josh", 32));
+            jsonArray.add(gnerateKvResult("person", "2", "vadas", 27));
+            jsonArray.add(gnerateKvResult("person", "6", "peter", 35));
+            return jsonArray;
+        }
+        private JsonObject gnerateKvResult(String label, String pk, String name, int age) {
+            JsonObject jsonObject = new JsonObject();
+            jsonObject.addProperty("label", label);
+            jsonObject.addProperty("age", age);
+            jsonObject.addProperty("name", name);
+            jsonObject.addProperty("pk", pk);
+            return jsonObject;
+        }
+
+        private JsonArray generatePathResultList(List<String> keys){
+            JsonArray jsonArray = new JsonArray();
+            for (String key : keys){
+                jsonArray.add(generatePathResult(key, new JsonArray()));
+            }
+            return jsonArray;
+        }
+
+        private JsonObject generatePathResult(String object, JsonArray label){
+            JsonObject jsonObject = new JsonObject();
+            jsonObject.add("label", label);
+            jsonObject.addProperty("object", object);
+            return jsonObject;
+        }
+
         public List<String> kkvSearchResult = new ArrayList<String>() {{
             add("{\"label\":\"created\",\"pk\":\"1\",\"sk\":\"3\",\"weight\":0.4}");
             add("{\"label\":\"created\",\"pk\":\"4\",\"sk\":\"3\",\"weight\":0.4}");
             add("{\"label\":\"created\",\"pk\":\"4\",\"sk\":\"5\",\"weight\":1.0}");
             add("{\"label\":\"created\",\"pk\":\"6\",\"sk\":\"3\",\"weight\":0.2}");
         }};
+
+        public JsonArray generateKkvResultList(){
+            JsonArray jsonArray = new JsonArray();
+            jsonArray.add(gnerateKkvResult("created", "1", "3", 0.4));
+            jsonArray.add(gnerateKkvResult("created", "4", "3", 0.4));
+            jsonArray.add(gnerateKkvResult("created", "4", "5", 1.0));
+            jsonArray.add(gnerateKkvResult("created", "6", "3", 0.2));
+            return jsonArray;
+        }
+        private JsonObject gnerateKkvResult(String label, String pk,String sk, double weight) {
+            JsonObject jsonObject = new JsonObject();
+            jsonObject.addProperty("label", label);
+            jsonObject.addProperty("weight", weight);
+            jsonObject.addProperty("sk", sk);
+            jsonObject.addProperty("pk", pk);
+            return jsonObject;
+        }
+
+
     }
 
     private static void analyze(Long rt, boolean hasError) {
@@ -332,6 +388,7 @@ public class GremlinTest {
     }
 
     private static void testFunction(Client client) {
+        Gson gson = new Gson();
         try {
             // test V() + hasLabel()
             {
@@ -344,6 +401,9 @@ public class GremlinTest {
                 logger.info("case(String):" + searchStr);
                 resultSet = client.submit(searchStr);
                 checkResultEqual(resultSet, testCase.kvSearchResult);
+                System.out.println(gson.toJson(testCase.generateKvResultList()));
+                System.out.println(gson.toJson(resultSet.getJson()));
+                JSONAssert.assertEquals(gson.toJson(resultSet.getJson()), gson.toJson(testCase.generateKvResultList()),true);
 
                 Map<String, Object> bindings = new LinkedHashMap<>();
                 logger.info("case(String):" + searchStr + bindings);
@@ -355,6 +415,7 @@ public class GremlinTest {
                 logger.info("case(String):" + searchStr + bindings);
                 resultSet = client.submit(searchStr, bindings);
                 checkResultEqual(resultSet, testCase.kvSearchResult);
+                JSONAssert.assertEquals(gson.toJson(resultSet.getJson()), gson.toJson(testCase.generateKvResultList()),true);
 
                 // test Vertex
                 try {
@@ -456,11 +517,13 @@ public class GremlinTest {
                 logger.info("case:" + searchCase.toString());
                 ResultSet resultSet = client.submit(searchCase);
                 checkResultEqual(resultSet, testCase.kkvSearchResult);
+                JSONAssert.assertEquals(gson.toJson(resultSet.getJson()), gson.toJson(testCase.generateKkvResultList()),true);
 
                 String searchStr = "g(\"tinkerpop_modern\").E(\"1:3;4:3|5;6\").hasLabel(\"created\")";
                 logger.info("case(String):" + searchStr);
                 resultSet = client.submit(searchStr);
                 checkResultEqual(resultSet, testCase.kkvSearchResult);
+                JSONAssert.assertEquals(gson.toJson(resultSet.getJson()), gson.toJson(testCase.generateKkvResultList()),true);
 
                 searchStr = "g(\"tinkerpop_modern\").E($1).hasLabel(\"created\")";
                 Map<String, Object> bindings = new LinkedHashMap<>();
@@ -468,6 +531,7 @@ public class GremlinTest {
                 logger.info("case(String):" + searchStr + bindings);
                 resultSet = client.submit(searchStr, bindings);
                 checkResultEqual(resultSet, testCase.kkvSearchResult);
+                JSONAssert.assertEquals(gson.toJson(resultSet.getJson()), gson.toJson(testCase.generateKkvResultList()),true);
 
                 // test Edge
                 try {
@@ -579,21 +643,27 @@ public class GremlinTest {
                 logger.info("case:" + searchCase.toString());
                 ResultSet resultSet = client.submit(searchCase);
                 checkResultEqual(resultSet, testCase.kkvSearchResult);
+                JSONAssert.assertEquals(gson.toJson(resultSet.getJson()), gson.toJson(testCase.generateKkvResultList()),true);
 
                 String searchStr = "g(\"tinkerpop_modern\").E(\"1:3;4:3|5;6\").has(T.label, P.eq(\"created\"))";
                 logger.info("case(String):" + searchStr);
                 resultSet = client.submit(searchStr);
                 checkResultEqual(resultSet, testCase.kkvSearchResult);
+                JSONAssert.assertEquals(gson.toJson(resultSet.getJson()), gson.toJson(testCase.generateKkvResultList()),true);
+
 
                 searchCase = g("tinkerpop_modern").E("1:3;4:3|5;6").has(T.label, P.eq("created")).has("weight", P.inside(0.19, 1.01));
                 logger.info("case:" + searchCase.toString());
                 resultSet = client.submit(searchCase);
                 checkResultEqual(resultSet, testCase.kkvSearchResult);
+                JSONAssert.assertEquals(gson.toJson(resultSet.getJson()), gson.toJson(testCase.generateKkvResultList()),true);
+
 
                 searchStr = "g(\"tinkerpop_modern\").E(\"1:3;4:3|5;6\").has(T.label, P.eq(\"created\")).has(\"weight\", P.inside(0.19, 1.01))";
                 logger.info("case(String):" + searchStr);
                 resultSet = client.submit(searchStr);
                 checkResultEqual(resultSet, testCase.kkvSearchResult);
+                JSONAssert.assertEquals(gson.toJson(resultSet.getJson()), gson.toJson(testCase.generateKkvResultList()),true);
 
                 searchCase = g("tinkerpop_modern").E("1:3;4:3|5;6").has(T.label, P.eq("created")).has("weight", 0.4);
                 logger.info("case:" + searchCase.toString());
@@ -710,6 +780,12 @@ public class GremlinTest {
                     add("vadas");
                     add("peter");
                 }};
+                JsonArray jsonArray = new JsonArray();
+                jsonArray.add(29);
+                jsonArray.add("josh");
+                jsonArray.add("vadas");
+                jsonArray.add("peter");
+                System.out.println(gson.toJson(jsonArray));
                 checkResultEqual(resultSet, searchResult);
 
                 String searchStr = "g(\"tinkerpop_modern\").V(\"1;2;3;4;5;6\").hasLabel(\"person\").branch(values(\"name\"))" +
@@ -717,6 +793,8 @@ public class GremlinTest {
                 logger.info("case(String):" + searchStr);
                 resultSet = client.submit(searchStr);
                 checkResultEqual(resultSet, searchResult);
+                JSONAssert.assertEquals(gson.toJson(resultSet.getJson()), gson.toJson(jsonArray), true);
+
             }
             // choose()
             {
@@ -730,6 +808,11 @@ public class GremlinTest {
                     add("vadas");
                     add("peter");
                 }};
+                JsonArray jsonArray = new JsonArray();
+                jsonArray.add(29);
+                jsonArray.add("josh");
+                jsonArray.add("vadas");
+                jsonArray.add("peter");
                 checkResultEqual(resultSet, searchResult);
 
                 String searchStr = "g(\"tinkerpop_modern\").V(\"1;2;3;4;5;6\").hasLabel(\"person\")" +
@@ -737,6 +820,7 @@ public class GremlinTest {
                 logger.info("case(String):" + searchStr);
                 resultSet = client.submit(searchStr);
                 checkResultEqual(resultSet, searchResult);
+                JSONAssert.assertEquals(gson.toJson(resultSet.getJson()), gson.toJson(jsonArray), true);
             }
             // coalesce()
             {
@@ -795,7 +879,15 @@ public class GremlinTest {
                 searchResult.clear();
                 searchResult.add("[{\"object\":\"marko\",\"label\":[]},{\"object\":\"josh\",\"label\":[]},{\"object\":\"lop\",\"label\":[]}]");
                 searchResult.add("[{\"object\":\"marko\",\"label\":[]},{\"object\":\"josh\",\"label\":[]},{\"object\":\"ripple\",\"label\":[]}]");
+                JsonArray jsonArray = new JsonArray();
+                JsonArray jsonArray1 = testCase.generatePathResultList(Arrays.asList("marko","josh","lop"));
+                JsonArray jsonArray2 = testCase.generatePathResultList(Arrays.asList("marko","josh","ripple"));
+                jsonArray.add(jsonArray1);
+                jsonArray.add(jsonArray2);
                 checkResultEqual(resultSet, searchResult);
+                System.out.println(gson.toJson(resultSet.getJson()));
+                System.out.println(gson.toJson(jsonArray));
+                JSONAssert.assertEquals(gson.toJson(resultSet.getJson()), gson.toJson(jsonArray), true);
 
                 searchStr = "g(\"tinkerpop_modern\").V(\"1;2;3;4;5;6\").hasLabel(\"person\").out().out().path().by(\"name\")";
                 logger.info("case(String):" + searchStr);
@@ -809,6 +901,8 @@ public class GremlinTest {
                 searchResult.add("[{\"object\":\"marko\",\"label\":[]},{\"object\":\"josh\",\"label\":[]},{\"object\":\"lop\",\"label\":[]}]");
                 searchResult.add("[{\"object\":\"marko\",\"label\":[]},{\"object\":\"josh\",\"label\":[]},{\"object\":\"ripple\",\"label\":[]}]");
                 checkResultEqual(resultSet, searchResult);
+                JSONAssert.assertEquals(gson.toJson(resultSet.getJson()), gson.toJson(jsonArray), true);
+
 
                 searchStr = "g(\"tinkerpop_modern\").V(\"1\").hasLabel(\"person\").out().out().simplePath().path().by(\"name\")";
                 logger.info("case(String):" + searchStr);
@@ -1313,7 +1407,10 @@ public class GremlinTest {
                 List<String> searchResult = new ArrayList<String>() {{
                     add("841");
                 }};
+                JsonArray jsonArray = new JsonArray();
+                jsonArray.add(841);
                 checkResultEqual(resultSet, searchResult);
+                JSONAssert.assertEquals(gson.toJson(resultSet.getJson()), gson.toJson(jsonArray), true);
 
                 String searchStr = "g(\"tinkerpop_modern\").V(\"1\").hasLabel(\"person\").values(\"age\").math(\"_ * _\")";
                 logger.info("case(String):" + searchStr);
@@ -1327,13 +1424,31 @@ public class GremlinTest {
                 searchResult.clear();
                 searchResult.add("61");
                 searchResult.add("56");
+                jsonArray = new JsonArray(2);
+                jsonArray.add(61);
+                jsonArray.add(56);
                 checkResultEqual(resultSet, searchResult);
+                JSONAssert.assertEquals(gson.toJson(resultSet.getJson()), gson.toJson(jsonArray), true);
 
                 searchStr = "g(\"tinkerpop_modern\").V(\"1\").hasLabel(\"person\").aggregate(\"x\")\n" +
                     ".outE(\"knows\").inV().values(\"age\").as(\"y\").local(select(\"x\").unfold().values(\"age\").math(\"_ + y\"))";
                 logger.info("case(String):" + searchStr);
                 resultSet = client.submit(searchStr);
                 checkResultEqual(resultSet, searchResult);
+
+                searchResult = new ArrayList<String>() {{
+                    add("{{\"label\":\"person\",\"age\":29,\"name\":\"marko\",\"pk\":\"1\"}=1}");
+                }};
+                searchStr = "g(\"tinkerpop_modern\").V(\"1\").hasLabel(\"person\").aggregate(\"x\").cap(\"x\")";
+                logger.info("case(String):" + searchStr);
+                resultSet = client.submit(searchStr);
+                checkResultEqual(resultSet, searchResult);
+                System.out.println(resultSet.getJson());
+                jsonArray = new JsonArray();
+                JsonObject jsonObject = new JsonObject();
+                jsonObject.addProperty(gson.toJson(testCase.gnerateKvResult("person","1","marko", 29)),1);
+                jsonArray.add(jsonObject);
+                JSONAssert.assertEquals(gson.toJson(resultSet.getJson()), gson.toJson(jsonArray), true);
             }
             // max() + mean() + min() + fold() + cap()
             {
@@ -1444,12 +1559,16 @@ public class GremlinTest {
                 List<String> searchResult = new ArrayList<String>() {{
                     add("{\"label\":\"person\",\"age\":27,\"name\":\"vadas\",\"pk\":\"2\"}");
                 }};
+                JsonArray jsonArray = new JsonArray();
+                jsonArray.add(testCase.gnerateKvResult("person","2", "vadas", 27));
                 checkResultEqual(resultSet, searchResult);
+                JSONAssert.assertEquals(gson.toJson(resultSet.getJson()), gson.toJson(jsonArray), true);
 
                 searchStr = "g(\"tinkerpop_modern\").V(\"1;2;3;4;5;6\").hasLabel(\"person\").order().by(\"pk\").range(1,2)";
                 logger.info("case(String):" + searchStr);
                 resultSet = client.submit(searchStr);
                 checkResultEqual(resultSet, searchResult);
+                JSONAssert.assertEquals(gson.toJson(resultSet.getJson()), gson.toJson(jsonArray), true);
 
                 searchStr = "g(\"tinkerpop_modern\").V($1).hasLabel(\"person\").order().by(\"pk\").range(1,$2)";
                 Map<String, Object> bindings = new LinkedHashMap<>();
@@ -1458,6 +1577,7 @@ public class GremlinTest {
                 logger.info("case(String):" + searchStr + bindings);
                 resultSet = client.submit(searchStr, bindings);
                 checkResultEqual(resultSet, searchResult);
+                JSONAssert.assertEquals(gson.toJson(resultSet.getJson()), gson.toJson(jsonArray), true);
 
                 searchStr = "g(\"tinkerpop_modern\").V($1).hasLabel(\"person\").order().by(\"pk\").range($2,$3)";
                 bindings = new LinkedHashMap<>();
@@ -1467,6 +1587,8 @@ public class GremlinTest {
                 logger.info("case(String):" + searchStr + bindings);
                 resultSet = client.submit(searchStr, bindings);
                 checkResultEqual(resultSet, searchResult);
+                JSONAssert.assertEquals(gson.toJson(resultSet.getJson()), gson.toJson(jsonArray), true);
+
 
                 searchCase = g("tinkerpop_modern").V("1;2;3;4;5;6").hasLabel("person").order().by("pk").range(Scope.global, 1, 2);
                 logger.info("case:" + searchCase.toString());
@@ -1475,11 +1597,15 @@ public class GremlinTest {
                     add("{\"label\":\"person\",\"age\":27,\"name\":\"vadas\",\"pk\":\"2\"}");
                 }};
                 checkResultEqual(resultSet, searchResult);
+                JSONAssert.assertEquals(gson.toJson(resultSet.getJson()), gson.toJson(jsonArray), true);
+
 
                 searchStr = "g(\"tinkerpop_modern\").V(\"1;2;3;4;5;6\").hasLabel(\"person\").order().by(\"pk\").range(Scope.global,1,2)";
                 logger.info("case(String):" + searchStr);
                 resultSet = client.submit(searchStr);
                 checkResultEqual(resultSet, searchResult);
+                JSONAssert.assertEquals(gson.toJson(resultSet.getJson()), gson.toJson(jsonArray), true);
+
 
                 searchStr = "g(\"tinkerpop_modern\").V($1).hasLabel(\"person\").order().by(\"pk\").range(Scope.global,1,$2)";
                 bindings = new LinkedHashMap<>();
@@ -1488,6 +1614,8 @@ public class GremlinTest {
                 logger.info("case(String):" + searchStr + bindings);
                 resultSet = client.submit(searchStr, bindings);
                 checkResultEqual(resultSet, searchResult);
+                JSONAssert.assertEquals(gson.toJson(resultSet.getJson()), gson.toJson(jsonArray), true);
+
 
                 searchStr = "g(\"tinkerpop_modern\").V($1).hasLabel(\"person\").order().by(\"pk\").range(Scope.global,$2,$3)";
                 bindings = new LinkedHashMap<>();
@@ -1497,6 +1625,7 @@ public class GremlinTest {
                 logger.info("case(String):" + searchStr + bindings);
                 resultSet = client.submit(searchStr, bindings);
                 checkResultEqual(resultSet, searchResult);
+                JSONAssert.assertEquals(gson.toJson(resultSet.getJson()), gson.toJson(jsonArray), true);
             }
             // withStrategies() + PathRecordStrategy() + PushDownStrategy()
             {
@@ -1549,8 +1678,13 @@ public class GremlinTest {
                     add("{a=0, b=32}");
                     add("{a=0, b=35}");
                 }};
+                JsonArray jsonArray = new JsonArray();
+                for (String searchResultStr : searchResult) {
+                    jsonArray.add(new JsonParser().parse(searchResultStr));
+                }
                 List<Result> resultList = resultSet.all().get();
                 checkResultEqual(resultSet, searchResult);
+                JSONAssert.assertEquals(gson.toJson(resultSet.getJson()), gson.toJson(jsonArray), true);
 
                 String searchStr = "g(\"tinkerpop_modern\").V(\"1;2;3;4;5;6\").hasLabel(\"person\").project(\"a\",\"b\")\n" +
                     ".by(outE(\"knows\").count()).by(\"age\").order().by(select(\"b\"))";
@@ -1678,7 +1812,11 @@ public class GremlinTest {
                 List<String> searchResult = new ArrayList<String>() {{
                     add("{\"label\":\"person\",\"age\":27,\"name\":\"vadas\",\"pk\":\"2\"}");
                 }};
+                JsonArray jsonArray = new JsonArray();
+                jsonArray.add(testCase.gnerateKvResult("person","2","vadas",27));
                 checkResultEqual(resultSet, searchResult);
+                JSONAssert.assertEquals(gson.toJson(resultSet.getJson()), gson.toJson(jsonArray), true);
+
 
                 String searchStr = "g(\"tinkerpop_modern\").V(\"1;2;3;4;5;6\").hasLabel(\"person\").order().by(\"pk\").range(1,2)";
                 logger.info("case(String):" + searchStr);
@@ -1978,7 +2116,7 @@ public class GremlinTest {
             String endpoint = "upsquery-daily2.taobao.com"; //"psquery-daily2.taobao.com";
             String updateEndpoint = "igraph-dailyupdate.taobao.org"; //"igraph-dailyupdate.taobao.org";
             builder.addContactPoint(endpoint).userName("test_name").userPasswd("test_passwd")
-                .retryTimes(3).connectionRequestTimeout(100).maxConnTotal(10000).maxConnPerRoute(5000);
+                .retryTimes(3).connectionRequestTimeout(200).maxConnTotal(10000).maxConnPerRoute(5000);
             Cluster cluster = builder.create();
             Client client = cluster.connect();
             ((IGraphClient) client).getConfig().setUpdateDomain(updateEndpoint);

@@ -18,6 +18,7 @@
  */
 package org.apache.tinkerpop.gremlin.driver;
 
+import com.google.gson.JsonObject;
 import org.apache.tinkerpop.gremlin.process.traversal.Path;
 import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.Element;
@@ -164,4 +165,10 @@ public interface Result {
      * @return Object
      */
     public Object getObject();
+
+    /**
+     * Gets jsonObject
+     * @return JsonObject
+     */
+    public Object getJson();
 }

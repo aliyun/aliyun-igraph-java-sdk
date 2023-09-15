@@ -1,5 +1,6 @@
 package com.aliyun.igraph.client.gremlin.structure;
 
+import com.google.gson.JsonObject;
 import lombok.NonNull;
 import org.apache.tinkerpop.gremlin.structure.Element;
 import org.apache.tinkerpop.gremlin.structure.Property;
@@ -37,6 +38,21 @@ public class IGraphProperty<V> extends IGraphElement implements Property {
     }
 
     private Object getObject() { return (fieldIndex == null ? null : super.getObejct(fieldIndex)); }
+
+    @Override
+    public Object toJson () {
+        JsonObject jsonObject = new JsonObject();
+        if (null == key) {
+            log.warn("get property's key failed when generate json");
+            return null;
+        }
+        if (null == fieldType) {
+            log.warn("get property's type failed when generate json");
+            return null;
+        }
+        addToJsonObject(jsonObject, key, fieldType);
+        return jsonObject;
+    }
 
     @Override
     public String toString() {

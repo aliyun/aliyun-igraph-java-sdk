@@ -16,8 +16,12 @@ import com.aliyun.igraph.client.core.model.type.multi.MultiUInt16;
 import com.aliyun.igraph.client.core.model.type.multi.MultiUInt32;
 import com.aliyun.igraph.client.core.model.type.multi.MultiUInt64;
 import com.aliyun.igraph.client.core.model.type.multi.MultiUInt8;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import lombok.NonNull;
 import org.apache.tinkerpop.gremlin.driver.Result;
+import org.apache.tinkerpop.gremlin.structure.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -163,6 +167,120 @@ public class IGraphResultResource {
         return resultObjectType;
     }
 
+    public Object toJson() {
+        switch (getObjectType()) {
+            case BOOL:
+                return getBoolean();
+            case INT8:
+            case INT16:
+            case INT32:
+            case INT64:
+            case UINT8:
+            case UINT16:
+            case UINT32:
+            case UINT64:
+                return getLong();
+            case FLOAT:
+            case DOUBLE:
+                return getDouble();
+            case STRING:
+                return getString();
+            case LIST:
+                return listToJson();
+            case SET:
+                return setToJson();
+            case MapEntry:
+                return mapEntryToJson();
+            case MAP:
+                return mapToJson();
+            case VERTEX:
+            case EDGE:
+            case PROPERTY:
+                return elementToJson(getObjectType());
+            case PATH:
+                IGraphPath path = getPath();
+                if (null != path) {
+                    return path.toJson();
+                }
+                break;
+            case BULKSET:
+                return bulkSetToJson();
+            default:  // TODO(fancheng) 缺少很多类型
+                break;
+        }
+        return null;
+    }
+
+    private Object listToJson() {
+        JsonArray array = new JsonArray();
+        List<IGraphResult> resultObjectList = getList();
+        if (null == resultObjectList) {
+            return null;
+        }
+        for (IGraphResult resultObject : resultObjectList) {
+            Gson gson = new Gson();
+            array.add(gson.toJsonTree(resultObject.toJsonObject()));
+        }
+        return array;
+    }
+    private Object setToJson() {
+        JsonArray array = new JsonArray();
+        Set<Object> resultObjectSet = getSet();
+        if (null == resultObjectSet) {
+            return null;
+        }
+        for (Object resultObject : resultObjectSet) {
+            Gson gson = new Gson();
+            array.add(gson.toJsonTree(resultObject));
+        }
+        return array;
+    }
+    private Object mapEntryToJson() {
+        JsonObject jsonObject = new JsonObject();
+        Map.Entry<IGraphResult, IGraphResult> resultObjectMapEntry = getMapEntry();
+        if (null == resultObjectMapEntry) {
+            return null;
+        }
+        Gson gson = new Gson();
+        String key = resultObjectMapEntry.getKey().toJsonObject().toString();
+        Object value = resultObjectMapEntry.getValue().toJsonObject();
+        jsonObject.add(key, gson.toJsonTree(value));
+        return jsonObject;
+    }
+    private Object mapToJson() {
+        JsonObject jsonObject = new JsonObject();
+        Map<Object, IGraphResult> resultObjectMap = getMap();
+        if (null == resultObjectMap) {
+            return null;
+        }
+        Gson gson = new Gson();
+        for (Map.Entry<Object, IGraphResult> entry : resultObjectMap.entrySet()) {
+            String key = entry.getKey().toString();
+            Object value = entry.getValue().toJsonObject();
+            jsonObject.add(key, gson.toJsonTree(value));
+        }
+        return jsonObject;
+    }
+    private Object elementToJson(IGraphResultObjectType type) {
+        IGraphElement element = getElement(type);
+        if (null == element) {
+            return null;
+        }
+        return element.toJson();
+    }
+    private Object bulkSetToJson() {
+        JsonObject jsonObject = new JsonObject();
+        Map<Result, Long> resultObjectBulkSet = getBulkSet();
+        if (null == resultObjectBulkSet) {
+            return null;
+        }
+        for (Map.Entry<Result, Long> entry : resultObjectBulkSet.entrySet()) {
+            String key = entry.getKey().getJson().toString();
+            Long bulk = entry.getValue();
+            jsonObject.addProperty(key, bulk);
+        }
+        return jsonObject;
+    }
     public Object getObject() {
         switch (getObjectType()) {
             case UNKNOWN:
