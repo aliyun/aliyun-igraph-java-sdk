@@ -225,7 +225,7 @@ public class IGraphPath implements Path {
         Gson gson = new Gson();
         for (int i = 0; i < resultList.size(); ++i) {
             JsonObject subObj = new JsonObject();
-            subObj.add("object", gson.toJsonTree(resultList.get(i)));
+            subObj.add("object", gson.toJsonTree(iGraphResultList.get(i).getJson()));
             subObj.add("label", gson.toJsonTree(labels.get(i)));
             jsonArray.add(subObj);
         }

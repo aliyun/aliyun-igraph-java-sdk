@@ -1405,7 +1405,7 @@ public class GremlinTest {
                 logger.info("case:" + searchCase.toString());
                 ResultSet resultSet = client.submit(searchCase);
                 List<String> searchResult = new ArrayList<String>() {{
-                    add("841");
+                    add("841.0");
                 }};
                 JsonArray jsonArray = new JsonArray();
                 jsonArray.add(841);
@@ -1422,8 +1422,8 @@ public class GremlinTest {
                 logger.info("case:" + searchCase.toString());
                 resultSet = client.submit(searchCase);
                 searchResult.clear();
-                searchResult.add("61");
-                searchResult.add("56");
+                searchResult.add("61.0");
+                searchResult.add("56.0");
                 jsonArray = new JsonArray(2);
                 jsonArray.add(61);
                 jsonArray.add(56);
@@ -1653,10 +1653,10 @@ public class GremlinTest {
                 logger.info("case:" + searchCase.toString());
                 resultSet = client.submit(searchCase);
                 searchResult.clear();
-                searchResult.add("1015");
-                searchResult.add("1120");
-                searchResult.add("945");
-                searchResult.add("1225");
+                searchResult.add("1015.0");
+                searchResult.add("1120.0");
+                searchResult.add("945.0");
+                searchResult.add("1225.0");
                 checkResultEqual(resultSet, searchResult);
 
                 searchStr = "g(\"tinkerpop_modern\").withStrategies(PushDownStrategy(\"x\")).V(\"1;2;3;4;5;6\").hasLabel(\"person\")\n" +
