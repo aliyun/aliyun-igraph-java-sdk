@@ -24,6 +24,10 @@ The easiest way to incorporate the SDK into your Java project is to use Maven. I
       <version>{lastest-sdk-version}</version>
 </dependency>
 ```
+Changes in version 1.0.7
+-----------------------
+* resultSet 新增 toJson 接口，用于将结果集转换为json格式 
+
 Changes in version 1.0.6
 -----------------------
 * client 支持 5210 错误码的重试
