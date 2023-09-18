@@ -159,4 +159,9 @@ public class IGraphUpdateResultSet implements ResultSet, Serializable {
             }
         };
     }
+
+    @Override
+    public Object getJson() {
+        return null;
+    }
 }

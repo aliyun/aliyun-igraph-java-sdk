@@ -1,5 +1,8 @@
 package com.aliyun.igraph.client.gremlin.structure;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import lombok.Data;
 import org.apache.tinkerpop.gremlin.process.traversal.Path;
 import org.apache.tinkerpop.gremlin.process.traversal.Pop;
@@ -212,5 +215,20 @@ public class IGraphPath implements Path {
             return subPath;
         }
         return this;
+    }
+    public Object toJson() {
+        if (resultList.size() != labels.size()) {
+            log.warn("the size of objects and labels is not equal in Path");
+            return null;
+        }
+        JsonArray jsonArray = new JsonArray();
+        Gson gson = new Gson();
+        for (int i = 0; i < resultList.size(); ++i) {
+            JsonObject subObj = new JsonObject();
+            subObj.add("object", gson.toJsonTree(iGraphResultList.get(i).getJson()));
+            subObj.add("label", gson.toJsonTree(labels.get(i)));
+            jsonArray.add(subObj);
+        }
+        return jsonArray;
     }
 }

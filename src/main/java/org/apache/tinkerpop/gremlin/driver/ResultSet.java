@@ -86,4 +86,7 @@ public interface ResultSet extends Iterable<Result> {
      */
     @Override
     public Iterator<Result> iterator();
+
+    public Object getJson();
+
 }

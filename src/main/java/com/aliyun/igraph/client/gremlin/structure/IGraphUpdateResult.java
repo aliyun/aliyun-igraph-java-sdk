@@ -95,6 +95,11 @@ public class IGraphUpdateResult implements Result {
     }
 
     @Override
+    public Object getJson() {
+        return null;
+    }
+
+    @Override
     public <T> T get(final Class<? extends T> clazz) {
         throw new NumberFormatException();
     }

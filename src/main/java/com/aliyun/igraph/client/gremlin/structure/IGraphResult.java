@@ -1,6 +1,7 @@
 package com.aliyun.igraph.client.gremlin.structure;
 
 
+import com.google.gson.JsonObject;
 import org.apache.tinkerpop.gremlin.driver.Result;
 import org.apache.tinkerpop.gremlin.structure.VertexProperty;
 
@@ -120,8 +121,17 @@ public class IGraphResult implements Result {
     @Override
     public Object getObject() { return resource.getObject(); }
 
+    @Override
+    public Object getJson() {
+        return toJsonObject();
+    }
+
     protected String toJson() {
         return resource.getObjectType() == IGraphResultObjectType.STRING ?  "\"" + resource.toString() + "\"" : resource.toString();
+    }
+
+    protected Object toJsonObject(){
+        return resource.toJson();
     }
 
     @Override

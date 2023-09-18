@@ -4,11 +4,12 @@
         <groupId>org.sonatype.oss</groupId>
         <artifactId>oss-parent</artifactId>
         <version>7</version>
+        <relativePath></relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.aliyun.igraph</groupId>
     <artifactId>aliyun-sdk-igraph</artifactId>
-    <version>1.0.5</version>
+    <version>1.0.6-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>Aliyun IGraph SDK for Java</name>
     <url>http://www.aliyun.com</url>
@@ -44,6 +45,8 @@
         <project.build.sourceEncoding>${java.encoding}</project.build.sourceEncoding>
         <jmockit.version>1.19</jmockit.version>
         <jmockit-coverage-outputDir>coverage-report</jmockit-coverage-outputDir>
+        <jsonassert.version>1.5.1</jsonassert.version>
+        <gson.version>2.8.5</gson.version>
     </properties>
     <dependencies>
         <!-- explicit dependency: 可能与用户依赖的组件版本冲突 -->
@@ -72,6 +75,11 @@
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>28.2-jre</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>${gson.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.flatbuffers</groupId>
@@ -121,6 +129,12 @@
             <groupId>org.jmockit</groupId>
             <artifactId>jmockit</artifactId>
             <version>${jmockit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.skyscreamer</groupId>
+            <artifactId>jsonassert</artifactId>
+            <version>${jsonassert.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
